@@ -1,0 +1,4 @@
+[submodule "src/DCore"]
+	branch = master
+	path = src/DCore
+	url = https://github.com/DECENTfoundation/DECENT-Network.git
