@@ -1,0 +1,48 @@
+version: 1.4.{build}
+
+image: Visual Studio 2017
+
+environment:
+  BOOST: C:\Libraries\boost_1_69_0
+  QT: C:\Qt\5.12\msvc2017_64
+  DOXYGEN: 1.8.14
+
+install:
+- cmd: >-
+    cd C:\Tools\vcpkg
+
+    git pull --quiet
+
+    bootstrap-vcpkg.bat
+
+    vcpkg --triplet x64-windows-static install cryptopp curl openssl pbc nlohmann-json
+
+    vcpkg upgrade --no-dry-run
+
+    cd %APPVEYOR_BUILD_FOLDER%
+
+    nuget install Doxygen -version %DOXYGEN% -outputdirectory ..
+
+    git submodule update --init --recursive
+
+cache: C:\Tools\vcpkg\installed
+
+build_script:
+- cmd: >-
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+    cmake -DCMAKE_INSTALL_PREFIX=%APPVEYOR_BUILD_FOLDER%\DCore -DCMAKE_PROGRAM_PATH=%APPVEYOR_BUILD_FOLDER%\..\Doxygen.%DOXYGEN%\tools -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\Tools\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DBOOST_ROOT=%BOOST% -DBOOST_LIBRARYDIR=%BOOST%\lib64-msvc-14.1 -DQt5Widgets_DIR=%QT%\lib\cmake\Qt5Widgets -DQt5LinguistTools_DIR=%QT%\lib\cmake\Qt5LinguistTools -G Ninja .
+
+    ninja -j2 install
+
+artifacts:
+- path: DCore\lib\dcore.pyd
+  name: Module
+
+notifications:
+- provider: Email
+  to:
+  - '{{commitAuthorEmail}}'
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: false
