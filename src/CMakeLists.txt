@@ -16,6 +16,7 @@ endif()
 file(GLOB HEADERS "*.hpp")
 
 add_library( dcore SHARED
+             common.cpp
              module.cpp
              ${HEADERS}
            )
