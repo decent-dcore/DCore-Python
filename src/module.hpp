@@ -77,6 +77,15 @@ void encode_safe_type(fc::safe<T>& obj, const T& v)
     obj.value = v;
 }
 
+template<typename T>
+bp::object encode_optional(const T& obj)
+{
+    if(obj.valid())
+       return bp::object(*obj);
+
+    return bp::object();
+}
+
 void register_common_types();
 
-}
+} // dcore

@@ -4,21 +4,11 @@
 
 namespace dcore {
 
-template<typename T>
-bp::object encode_optional(T obj)
-{
-    if(obj.valid())
-       return bp::object(*obj);
-
-    return bp::object();
-}
-
 struct Wallet : public graphene::wallet::WalletAPI
 {
     void connect(const char *wallet_file, const char *server, const char *user = nullptr, const char *password = nullptr)
     {
-        std::atomic_bool cancellation_token(false);
-        Connect(cancellation_token, wallet_file, { server, user, password });
+        Connect(wallet_file, { server, user, password });
     }
 
     // wallet file
@@ -33,6 +23,7 @@ struct Wallet : public graphene::wallet::WalletAPI
     graphene::wallet::wallet_about about() { return exec(&graphene::wallet::wallet_api::about).wait(); }
     graphene::wallet::wallet_info info() { return exec(&graphene::wallet::wallet_api::info).wait(); }
     bp::object get_block(uint32_t num) { return encode_optional(exec(&graphene::wallet::wallet_api::get_block, num).wait()); }
+    fc::time_point_sec head_block_time() { return exec(&graphene::wallet::wallet_api::head_block_time).wait(); }
 };
 
 } // dcore
@@ -86,5 +77,6 @@ BOOST_PYTHON_MODULE(dcore)
         .def("about", &dcore::Wallet::about)
         .def("info", &dcore::Wallet::info)
         .def("get_block", &dcore::Wallet::get_block)
+        .def("head_block_time", &dcore::Wallet::head_block_time)
     ;
 }
