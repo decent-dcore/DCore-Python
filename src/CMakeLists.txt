@@ -1,7 +1,7 @@
 add_subdirectory(DCore EXCLUDE_FROM_ALL)
 
-set(PYTHON_VERSION "37" CACHE STRING "Python version")
-string(REGEX REPLACE "([2-3])[0-9]" "Python\\1" PYTHON_MODULE "${PYTHON_VERSION}")
+set(PYTHON_VERSION "3" CACHE STRING "Python version")
+string(REGEX REPLACE "([2-3])[0-9]?" "Python\\1" PYTHON_MODULE "${PYTHON_VERSION}")
 
 set(Python_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
 find_package("${PYTHON_MODULE}" COMPONENTS Development Interpreter)

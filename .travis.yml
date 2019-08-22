@@ -76,10 +76,10 @@ before_install:
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore .;
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DPYTHON_VERSION=37 .;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DCMAKE_PREFIX_PATH=$HOME/json .;
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DCMAKE_PREFIX_PATH=$HOME/json -DPYTHON_VERSION=36 .;
     fi
   - make -j$(nproc) install
 
