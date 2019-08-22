@@ -7,7 +7,7 @@ set(Python_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
 find_package("${PYTHON_MODULE}" COMPONENTS Development)
 
 find_package(Boost 1.65.1 COMPONENTS "python${PYTHON_VERSION}")
-if( NOT Boost_FOUND )
+if(NOT Boost_FOUND)
    find_package(Boost 1.65.1 REQUIRED COMPONENTS python)
 else()
    set(PYTHON_SUFFIX "${PYTHON_VERSION}")
@@ -36,10 +36,10 @@ elseif( WIN32 )
    set_target_properties( dcore PROPERTIES SUFFIX ".pyd" )
 endif()
 
-install( TARGETS
-   dcore
-
+install(TARGETS dcore
    RUNTIME DESTINATION lib
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
+
+install(FILES __init__.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/DCore)
