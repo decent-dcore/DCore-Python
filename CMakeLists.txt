@@ -41,7 +41,7 @@ endif()
 
 if( UNIX )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
-    set( Boost_USE_STATIC_LIBS OFF )
+    set( Boost_USE_STATIC_LIBS OFF CACHE BOOL "Use shared Boost libraries" )
 endif()
 
 add_subdirectory( src )
