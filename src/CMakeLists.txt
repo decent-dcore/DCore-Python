@@ -4,7 +4,7 @@ set(PYTHON_VERSION "37" CACHE STRING "Python version")
 string(REGEX REPLACE "([2-3])[0-9]" "Python\\1" PYTHON_MODULE "${PYTHON_VERSION}")
 
 set(Python_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
-find_package("${PYTHON_MODULE}" COMPONENTS Development)
+find_package("${PYTHON_MODULE}" COMPONENTS Development Interpreter)
 
 find_package(Boost 1.65.1 COMPONENTS "python${PYTHON_VERSION}")
 if(NOT Boost_FOUND)
@@ -37,9 +37,7 @@ elseif( WIN32 )
 endif()
 
 install(TARGETS dcore
-   RUNTIME DESTINATION lib
-   LIBRARY DESTINATION lib
-   ARCHIVE DESTINATION lib
+   LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${${PYTHON_MODULE}_SITEARCH}
 )
 
-install(FILES __init__.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/DCore)
+install(FILES __init__.py DESTINATION ${CMAKE_INSTALL_PREFIX}/${${PYTHON_MODULE}_SITELIB}/DCore)
