@@ -28,6 +28,10 @@ struct Wallet : public graphene::wallet::WalletAPI
 
 } // dcore
 
+#if defined(__GNUC__) && __GNUC__ <= 7 && __GNUC_MINOR__ <= 4
+#pragma GCC visibility push(default)
+#endif
+
 BOOST_PYTHON_MODULE(dcore)
 {
     dcore::register_common_types();
