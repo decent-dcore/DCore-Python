@@ -24,29 +24,6 @@ std::string object_id_str(const T& obj)
     return std::string(static_cast<graphene::db::object_id_type>(obj));
 }
 
-template<typename T>
-void register_object_id(const char* name)
-{
-    bp::class_<T>(name, bp::init<uint64_t>())
-        .def(bp::init<graphene::db::object_id_type>())
-        .def("__repr__", object_repr<T>)
-        .def("__str__", object_id_str<T>)
-        .def("__hash__", &T::operator uint64_t)
-        .def_readonly("object_id", &T::operator graphene::db::object_id_type)
-    ;
-};
-
-template<typename T>
-void register_hash(const char* name)
-{
-    bp::class_<T>(name, bp::init<>())
-        .def(bp::init<std::string>())
-        .def("__repr__", object_repr<T>)
-        .def("__str__", &T::operator std::string)
-        .def("__hash__", object_hash<T>)
-    ;
-}
-
 template<typename T, typename Container, const Container T::* container>
 bp::list encode_list(const T &obj)
 {

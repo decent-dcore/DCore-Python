@@ -4,10 +4,34 @@
 
 namespace dcore {
 
+template<typename T>
+void register_hash(const char* name)
+{
+    bp::class_<T>(name, bp::init<>())
+        .def(bp::init<std::string>())
+        .def("__repr__", object_repr<T>)
+        .def("__str__", &T::operator std::string)
+        .def("__hash__", object_hash<T>)
+    ;
+}
+
+template<typename T>
+void register_object_id(const char* name)
+{
+    bp::class_<T>(name, bp::init<uint64_t>())
+        .def(bp::init<graphene::db::object_id_type>())
+        .def("__repr__", object_repr<T>)
+        .def("__str__", object_id_str<T>)
+        .def("__hash__", &T::operator uint64_t)
+        .def_readonly("object_id", &T::operator graphene::db::object_id_type)
+    ;
+};
+
 void register_common_types()
 {
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
+    register_hash<fc::sha224>("SHA224");
 
     bp::class_<fc::ecc::compact_signature>("CompactSignature", bp::no_init)
         .def("__repr__", object_repr<fc::ecc::compact_signature>)
@@ -39,7 +63,35 @@ void register_common_types()
         .def("is_null", &graphene::db::object_id_type::is_null)
     ;
 
+    register_object_id<graphene::chain::account_id_type>("AccountId");
+    register_object_id<graphene::chain::asset_id_type>("AssetId");
     register_object_id<graphene::chain::miner_id_type>("MinerId");
+    register_object_id<graphene::chain::proposal_id_type>("ProposalId");
+    register_object_id<graphene::chain::operation_history_id_type>("OperationHistoryId");
+    register_object_id<graphene::chain::withdraw_permission_id_type>("WithdrawPermissionId");
+    register_object_id<graphene::chain::vesting_balance_id_type>("VestingBalanceId");
+    register_object_id<graphene::chain::non_fungible_token_id_type>("NonFungibleTokenId");
+    register_object_id<graphene::chain::non_fungible_token_data_id_type>("NonFungibleTokenDataId");
+
+    register_object_id<graphene::chain::global_property_id_type>("GlobalPropertyId");
+    register_object_id<graphene::chain::dynamic_global_property_id_type>("DynamicGlobalPropertyId");
+    register_object_id<graphene::chain::asset_dynamic_data_id_type>("AssetDynamicDataId");
+    register_object_id<graphene::chain::account_balance_id_type>("AccountBalanceId");
+    register_object_id<graphene::chain::account_statistics_id_type>("AccountStatisticsId");
+    register_object_id<graphene::chain::transaction_obj_id_type>("TransactionId");
+    register_object_id<graphene::chain::block_summary_id_type>("BlockSummaryId");
+    register_object_id<graphene::chain::account_transaction_history_id_type>("AccountTransactionHistoryId");
+    register_object_id<graphene::chain::chain_property_id_type>("ChainPropertyId");
+    register_object_id<graphene::chain::miner_schedule_id_type>("MinerScheduleId");
+    register_object_id<graphene::chain::budget_record_id_type>("BudgetRecordId");
+    register_object_id<graphene::chain::buying_id_type>("BuyingId");
+    register_object_id<graphene::chain::content_id_type>("ContentId");
+    register_object_id<graphene::chain::publisher_id_type>("SeederId");
+    register_object_id<graphene::chain::subscription_id_type>("SubscriptionId");
+    register_object_id<graphene::chain::seeding_statistics_id_type>("SeedingStatisticsId");
+    register_object_id<graphene::chain::transaction_detail_id_type>("TransactionDetailId");
+    register_object_id<graphene::chain::message_id_type>("MessageId");
+    register_object_id<graphene::chain::transaction_history_id_type>("TransactionHistoryId");
 
     bp::class_<graphene::chain::block_header>("BlockHeader", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::block_header>)
