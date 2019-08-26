@@ -6,7 +6,7 @@ namespace dcore {
 
 struct Wallet : public graphene::wallet::WalletAPI
 {
-    void connect(const char *wallet_file, const char *server, const char *user = nullptr, const char *password = nullptr)
+    void connect(const std::string &wallet_file, const std::string &server, const std::string &user, const std::string &password)
     {
         Connect(wallet_file, { server, user, password });
     }
@@ -73,7 +73,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("__bool__", &dcore::Wallet::is_new)
         .def_readonly("locked", &dcore::Wallet::is_locked)
         .def_readonly("connected", &dcore::Wallet::is_connected)
-        .def("connect", &dcore::Wallet::connect, (bp::arg("wallet_file"), bp::arg("server"), bp::arg("user") = "", bp::arg("password") = ""))
+        .def("connect", &dcore::Wallet::connect, (bp::arg("wallet_file"), bp::arg("server") = "ws://localhost:8090", bp::arg("user") = "", bp::arg("password") = ""))
         .def("lock", &dcore::Wallet::lock)
         .def("unlock", &dcore::Wallet::unlock, (bp::arg("password")))
         .def("set_password", &dcore::Wallet::set_password, (bp::arg("password")))
