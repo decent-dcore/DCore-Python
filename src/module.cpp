@@ -1,8 +1,14 @@
 #include "module.hpp"
 #include <graphene/wallet/wallet_utility.hpp>
 #include <graphene/wallet/wallet.hpp>
+#include <fc/log/logger_config.hpp>
 
 namespace dcore {
+
+void configure_logging(const std::string &config_file)
+{
+    fc::configure_logging(config_file);
+}
 
 struct Wallet : public graphene::wallet::WalletAPI
 {
@@ -34,6 +40,9 @@ struct Wallet : public graphene::wallet::WalletAPI
 
 BOOST_PYTHON_MODULE(dcore)
 {
+    fc::configure_logging(fc::logging_config());
+    bp::def("configure_logging", dcore::configure_logging);
+
     dcore::register_common_types();
 
     bp::class_<decent::about_info>("About", bp::init<>())
