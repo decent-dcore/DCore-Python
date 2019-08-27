@@ -15,9 +15,9 @@ struct Wallet : public graphene::wallet::WalletAPI
     bool is_new() { return exec(&graphene::wallet::wallet_api::is_new).wait(); }
     bool is_locked() { return exec(&graphene::wallet::wallet_api::is_locked).wait(); }
     bool lock() { return exec(&graphene::wallet::wallet_api::lock).wait(); }
-    bool unlock(const char *password) { return exec(&graphene::wallet::wallet_api::unlock, password).wait(); }
-    void set_password(const char *password) { exec(&graphene::wallet::wallet_api::set_password, password).wait(); }
-    void save(const char *filepath) { exec(&graphene::wallet::wallet_api::save_wallet_file, filepath).wait(); }
+    bool unlock(const std::string &password) { return exec(&graphene::wallet::wallet_api::unlock, password).wait(); }
+    void set_password(const std::string &password) { exec(&graphene::wallet::wallet_api::set_password, password).wait(); }
+    void save(const std::string &filepath) { exec(&graphene::wallet::wallet_api::save_wallet_file, filepath).wait(); }
 
     // general
     graphene::wallet::wallet_about about() { return exec(&graphene::wallet::wallet_api::about).wait(); }
