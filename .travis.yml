@@ -39,13 +39,15 @@ matrix:
 
 addons:
   apt:
+    sources:
+      - sourceline: 'deb [arch=amd64] https://dl.bintray.com/decentfoundation/ubuntu bionic libpbc'
+        key_url: 'https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation'
     packages:
       - doxygen
-      - qt5-default
-      - qttools5-dev
-      - qttools5-dev-tools
+      - libboost-all-dev
       - libcrypto++-dev
       - libcurl4-openssl-dev
+      - libpbc-dev
 
 before_cache:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -63,23 +65,15 @@ before_install:
       brew link --force readline;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      curl https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation | sudo apt-key add -;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository "deb [arch=amd64] https://dl.bintray.com/decentfoundation/ubuntu $(lsb_release -cs) libpbc" &&
-      sudo apt-get update &&
-      sudo apt-get install -y libpbc-dev;
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      test -d $HOME/json/include || (wget -nv https://github.com/nlohmann/json/archive/v3.6.1.tar.gz && tar xf v3.6.1.tar.gz && cd json-3.6.1 && cmake -DCMAKE_INSTALL_PREFIX=$HOME/json . && make -j$(nproc) install);
+      test -d $HOME/json/include || (wget -nv https://github.com/nlohmann/json/archive/v3.7.0.tar.gz && tar xf v3.7.0.tar.gz && cd json-3.7.0 && cmake -DCMAKE_INSTALL_PREFIX=$HOME/json . && make -j$(nproc) install);
     fi
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DPYTHON_VERSION=37 .;
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DBUILD_GUI=0 -DPYTHON_VERSION=37 .;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DCMAKE_PREFIX_PATH=$HOME/json -DPYTHON_VERSION=36 .;
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/DCore -DCMAKE_PREFIX_PATH=$HOME/json -DBUILD_GUI=0 -DPYTHON_VERSION=36 .;
     fi
   - make -j$(nproc) install
 

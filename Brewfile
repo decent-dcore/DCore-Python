@@ -8,7 +8,6 @@ brew "pbc"
 brew "openssl"
 brew "readline"
 brew "boost-python3"
-brew "qt"
 brew "doxygen"
 tap "nlohmann/json"
 brew "nlohmann_json",  args: ["with-cmake"]
