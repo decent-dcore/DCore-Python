@@ -1,13 +1,31 @@
 #include "module.hpp"
 #include <graphene/wallet/wallet_utility.hpp>
 #include <graphene/wallet/wallet.hpp>
+#include <graphene/utilities/dirhelper.hpp>
 #include <fc/log/logger_config.hpp>
 
 namespace dcore {
 
-void configure_logging(const std::string &config_file)
+template<typename T, boost::filesystem::path (T::* method)() const>
+std::string decode_path(const T &obj)
 {
-    fc::configure_logging(config_file);
+    return (obj.*method)().generic_string();
+}
+
+template<typename T, void (T::* method)(const boost::filesystem::path&)>
+void encode_path(T &obj, const std::string &p)
+{
+    (obj.*method)(p);
+}
+
+void configure_logging(const std::string &config)
+{
+    fc::configure_logging(fc::json::from_string(config).as<fc::logging_config>());
+}
+
+std::string default_logging()
+{
+    return fc::json::to_pretty_string(fc::logging_config::default_config());
 }
 
 struct Wallet : public graphene::wallet::WalletAPI
@@ -42,8 +60,21 @@ BOOST_PYTHON_MODULE(dcore)
 {
     fc::configure_logging(fc::logging_config());
     bp::def("configure_logging", dcore::configure_logging);
+    bp::def("default_logging", dcore::default_logging);
 
     dcore::register_common_types();
+
+    bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
+        .def("instance", graphene::utilities::decent_path_finder::instance, bp::return_value_policy<bp::reference_existing_object>())
+        .staticmethod("instance")
+        .add_property("home", dcore::decode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::get_decent_home>)
+        .add_property("logs", dcore::decode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::get_decent_logs>,
+                              dcore::encode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::set_decent_logs_path>)
+        .add_property("temp", dcore::decode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::get_decent_temp>,
+                              dcore::encode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::set_decent_temp_path>)
+        .add_property("packages", dcore::decode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::get_decent_packages>,
+                                  dcore::encode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::set_packages_path>)
+    ;
 
     bp::class_<decent::about_info>("About", bp::init<>())
         .def("__repr__", dcore::object_repr<decent::about_info>)
