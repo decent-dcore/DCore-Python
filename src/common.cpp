@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/block.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 
@@ -33,23 +34,27 @@ void register_common_types()
     register_hash<fc::sha256>("SHA256");
     register_hash<fc::sha224>("SHA224");
 
+    bp::class_<fc::time_point_sec>("TimePointSec", bp::init<>())
+        .def("__repr__", &fc::time_point_sec::to_iso_string)
+        .def("sec_since_epoch", &fc::time_point_sec::sec_since_epoch)
+    ;
+
     bp::class_<fc::ecc::compact_signature>("CompactSignature", bp::no_init)
         .def("__repr__", object_repr<fc::ecc::compact_signature>)
     ;
 
-    bp::class_<fc::ecc::public_key>("PublicKey", bp::no_init)
+    bp::class_<fc::ecc::public_key>("PublicKey_Raw", bp::no_init)
         .def("__repr__", object_repr<fc::ecc::public_key>)
     ;
 
-    bp::class_<fc::ecc::private_key>("PrivateKey", bp::no_init)
-        .def("__repr__", object_repr<fc::ecc::private_key>)
-        .def("get_public_key", &fc::ecc::private_key::get_public_key)
-        .def("get_shared_secret", &fc::ecc::private_key::get_shared_secret)
+    bp::class_<graphene::chain::public_key_type>("PublicKey", bp::no_init)
+        .def("__repr__", object_repr<graphene::chain::public_key_type>)
     ;
 
-    bp::class_<fc::time_point_sec>("TimePointSec", bp::init<>())
-        .def("__repr__", &fc::time_point_sec::to_iso_string)
-        .def("sec_since_epoch", &fc::time_point_sec::sec_since_epoch)
+    bp::class_<graphene::chain::private_key_type>("PrivateKey", bp::no_init)
+        .def("__repr__", object_repr<graphene::chain::private_key_type>)
+        .def("get_public_key", &graphene::chain::private_key_type::get_public_key)
+        .def("get_shared_secret", &graphene::chain::private_key_type::get_shared_secret)
     ;
 
     bp::class_<graphene::db::object_id_type>("ObjectId", bp::init<uint8_t, uint8_t, uint8_t>())
@@ -117,9 +122,7 @@ void register_common_types()
     bp::class_<graphene::chain::signed_block, bp::bases<graphene::chain::signed_block_header>>("SignedBlock", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::signed_block>)
         .def("calculate_merkle_root", &graphene::chain::signed_block::calculate_merkle_root)
-        //.add_property("transactions", encode_list<graphene::chain::signed_block,
-        //                                          std::vector<graphene::chain::processed_transaction>,
-        //                                          &graphene::chain::signed_block::processed_transaction>)
+        .add_property("transactions", encode_list<graphene::chain::signed_block, std::vector<graphene::chain::processed_transaction>, &graphene::chain::signed_block::transactions>)
     ;
 
     bp::class_<graphene::chain::signed_block_with_info, bp::bases<graphene::chain::signed_block>>("SignedBlockInfo", bp::init<>())
@@ -127,7 +130,14 @@ void register_common_types()
         .add_property("transaction_ids", encode_list<graphene::chain::signed_block_with_info,
                                                      std::vector<graphene::chain::transaction_id_type>,
                                                      &graphene::chain::signed_block_with_info::transaction_ids>)
-        .add_property("miner_reward", decode_safe_type<int64_t>)
+        .add_property("miner_reward", decode_safe_type<graphene::chain::signed_block_with_info, int64_t, &graphene::chain::signed_block_with_info::miner_reward>)
+    ;
+
+    bp::class_<graphene::chain::asset>("Balance", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::asset>)
+        .add_property("amount", decode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>,
+                                encode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>)
+        .add_property("asset_id", &graphene::chain::asset::asset_id)
     ;
 }
 

@@ -24,6 +24,24 @@ std::string object_id_str(const T& obj)
     return std::string(static_cast<graphene::db::object_id_type>(obj));
 }
 
+template<typename T>
+bp::list encode_container(const T &container)
+{
+    bp::list l;
+    for(const auto& v : container)
+        l.append(v);
+    return l;
+}
+
+template<typename T>
+void decode_container(T& container, const bp::list &l)
+{
+    auto len = bp::len(l);
+    container.resize(len);
+    while(len--)
+        container[len] = bp::extract<typename T::value_type>(l[len]);
+}
+
 template<typename T, typename Container, const Container T::* container>
 bp::list encode_list(const T &obj)
 {
@@ -42,27 +60,89 @@ void decode_list(T& obj, const bp::list &l)
         (obj.*container)[len] = bp::extract<typename Container::value_type>(l[len]);
 }
 
-template<typename T>
-T decode_safe_type(const fc::safe<T>& v)
+template<typename T, typename Container, const Container T::* container>
+bp::dict encode_dict(const T &obj)
 {
-    return v.value;
+    bp::dict d;
+    for(const auto& v : (obj.*container))
+        d.setdefault(v.first, v.second);
+    return d;
+}
+
+template<typename T, typename Container, Container T::* container>
+void decode_dict(T& obj, const bp::dict &d)
+{
+    bp::list l = d.keys();
+    auto len = bp::len(l);
+    (obj.*container).reserve(len);
+    while(len--) {
+        bp::object k = l[len];
+        (obj.*container)[bp::extract<typename Container::key_type>(k)] = bp::extract<typename Container::mapped_type>(d.get(k));
+    }
+}
+
+template<typename T, typename Container, const Container T::* container>
+bp::list encode_set(const T &obj)
+{
+    bp::list l;
+    for(const auto& v : (obj.*container))
+        l.append(v);
+    return l;
+}
+
+template<typename T, typename Container, Container T::* container>
+void decode_set(T& obj, const bp::list &l)
+{
+    auto len = bp::len(l);
+    while(len--)
+        (obj.*container).insert(bp::extract<typename Container::value_type>(l[len]));
+}
+
+template<typename T, typename V, const fc::safe<V> T::* instance>
+V decode_safe_type(const T& obj)
+{
+    return (obj.*instance).value;
+}
+
+template<typename T, typename V, fc::safe<V> T::* instance>
+void encode_safe_type(T& obj, const V &v)
+{
+    (obj.*instance) = v;
 }
 
 template<typename T>
-void encode_safe_type(fc::safe<T>& obj, const T& v)
+bp::object optional_value(const T& obj)
 {
-    obj.value = v;
+    return obj.valid() ? bp::object(*obj) : bp::object();
+}
+
+template<typename T, typename V, const fc::optional<V> T::* instance>
+bp::object decode_optional_type(const T& obj)
+{
+    return optional_value(obj.*instance);
+}
+
+template<typename T, typename V, fc::optional<V> T::* instance>
+void encode_optional_type(T& obj, const V &v)
+{
+    (obj.*instance) = v;
 }
 
 template<typename T>
-bp::object encode_optional(const T& obj)
+class object_wrapper : public T, public bp::wrapper<T>
 {
-    if(obj.valid())
-       return bp::object(*obj);
-
-    return bp::object();
-}
+public:
+    template<typename C>
+    static C& wrap(C &instance)
+    {
+        instance.add_property("object_id", &T::id);
+        instance.def("get_id", &T::get_id);
+        instance.def("__repr__", object_repr<T>);
+        return instance;
+    }
+};
 
 void register_common_types();
+void register_account();
 
 } // dcore

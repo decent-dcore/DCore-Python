@@ -42,11 +42,12 @@ struct Wallet : public graphene::wallet::WalletAPI
     bool unlock(const std::string &password) { return exec(&graphene::wallet::wallet_api::unlock, password).wait(); }
     void set_password(const std::string &password) { exec(&graphene::wallet::wallet_api::set_password, password).wait(); }
     void save(const std::string &filepath) { exec(&graphene::wallet::wallet_api::save_wallet_file, filepath).wait(); }
+    bp::list list_my_accounts() { return encode_container(exec(&graphene::wallet::wallet_api::list_my_accounts).wait()); }
 
     // general
     graphene::wallet::wallet_about about() { return exec(&graphene::wallet::wallet_api::about).wait(); }
     graphene::wallet::wallet_info info() { return exec(&graphene::wallet::wallet_api::info).wait(); }
-    bp::object get_block(uint32_t num) { return encode_optional(exec(&graphene::wallet::wallet_api::get_block, num).wait()); }
+    bp::object get_block(uint32_t num) { return optional_value(exec(&graphene::wallet::wallet_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return exec(&graphene::wallet::wallet_api::head_block_time).wait(); }
 };
 
@@ -63,6 +64,7 @@ BOOST_PYTHON_MODULE(dcore)
     bp::def("default_logging", dcore::default_logging);
 
     dcore::register_common_types();
+    dcore::register_account();
 
     bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
         .def("instance", graphene::utilities::decent_path_finder::instance, bp::return_value_policy<bp::reference_existing_object>())
@@ -119,6 +121,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("set_password", &dcore::Wallet::set_password, (bp::arg("password")))
         .def("save", &dcore::Wallet::save, (bp::arg("filepath")))
         .def("about", &dcore::Wallet::about)
+        .def("list_my_accounts", &dcore::Wallet::list_my_accounts)
         .def("info", &dcore::Wallet::info)
         .def("get_block", &dcore::Wallet::get_block)
         .def("head_block_time", &dcore::Wallet::head_block_time)
