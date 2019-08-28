@@ -47,8 +47,10 @@ void register_common_types()
         .def("__repr__", object_repr<fc::ecc::public_key>)
     ;
 
-    bp::class_<graphene::chain::public_key_type>("PublicKey", bp::no_init)
+    bp::class_<graphene::chain::public_key_type>("PublicKey", bp::init<std::string>())
         .def("__repr__", object_repr<graphene::chain::public_key_type>)
+        .def("__str__", &graphene::chain::public_key_type::operator std::string)
+        .def("raw", &graphene::chain::public_key_type::operator fc::ecc::public_key)
     ;
 
     bp::class_<graphene::chain::private_key_type>("PrivateKey", bp::no_init)

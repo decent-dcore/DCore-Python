@@ -42,6 +42,12 @@ struct Wallet : public graphene::wallet::WalletAPI
     bool unlock(const std::string &password) { return exec(&graphene::wallet::wallet_api::unlock, password).wait(); }
     void set_password(const std::string &password) { exec(&graphene::wallet::wallet_api::set_password, password).wait(); }
     void save(const std::string &filepath) { exec(&graphene::wallet::wallet_api::save_wallet_file, filepath).wait(); }
+    bool load(const std::string &filepath) { return exec(&graphene::wallet::wallet_api::load_wallet_file, filepath).wait(); }
+    std::string get_filename() { return exec(&graphene::wallet::wallet_api::get_wallet_filename).wait().generic_string(); }
+    bool import_key(const std::string &account, const std::string &key) { return exec(&graphene::wallet::wallet_api::import_key, account, key).wait(); }
+    bool import_single_key(const std::string &account, const std::string &key) { return exec(&graphene::wallet::wallet_api::import_single_key, account, key).wait(); }
+    std::string get_private_key(const graphene::chain::public_key_type &pubkey) { return exec(&graphene::wallet::wallet_api::get_private_key, pubkey).wait(); }
+    std::string dump_private_keys() { return object_repr(exec(&graphene::wallet::wallet_api::dump_private_keys).wait()); }
     bp::list list_my_accounts() { return encode_container(exec(&graphene::wallet::wallet_api::list_my_accounts).wait()); }
 
     // general
@@ -113,17 +119,23 @@ BOOST_PYTHON_MODULE(dcore)
 
     bp::class_<dcore::Wallet, boost::noncopyable>("Wallet", bp::init<>())
         .def("__bool__", &dcore::Wallet::is_new)
-        .def_readonly("locked", &dcore::Wallet::is_locked)
-        .def_readonly("connected", &dcore::Wallet::is_connected)
+        .add_property("locked", &dcore::Wallet::is_locked)
+        .add_property("connected", &dcore::Wallet::is_connected)
+        .add_property("filename", &dcore::Wallet::get_filename)
         .def("connect", &dcore::Wallet::connect, (bp::arg("wallet_file"), bp::arg("server") = "ws://localhost:8090", bp::arg("user") = "", bp::arg("password") = ""))
         .def("lock", &dcore::Wallet::lock)
         .def("unlock", &dcore::Wallet::unlock, (bp::arg("password")))
         .def("set_password", &dcore::Wallet::set_password, (bp::arg("password")))
         .def("save", &dcore::Wallet::save, (bp::arg("filepath")))
+        .def("load", &dcore::Wallet::load, (bp::arg("filepath")))
+        .def("import_key", &dcore::Wallet::import_key, (bp::arg("account"), bp::arg("key")))
+        .def("import_single_key", &dcore::Wallet::import_single_key, (bp::arg("account"), bp::arg("key")))
+        .def("get_private_key", &dcore::Wallet::get_private_key, (bp::arg("pubkey")))
+        .def("dump_private_keys", &dcore::Wallet::dump_private_keys)
         .def("about", &dcore::Wallet::about)
         .def("list_my_accounts", &dcore::Wallet::list_my_accounts)
         .def("info", &dcore::Wallet::info)
-        .def("get_block", &dcore::Wallet::get_block)
+        .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
     ;
 }
