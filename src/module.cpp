@@ -29,13 +29,13 @@ bp::dict to_dict(const T &container)
 template<typename T, boost::filesystem::path (T::* method)() const>
 std::string decode_path(const T &obj)
 {
-    return (obj.*method)().generic_string();
+    return fc::path_to_utf8((obj.*method)());
 }
 
 template<typename T, void (T::* method)(const boost::filesystem::path&)>
 void encode_path(T &obj, const std::string &p)
 {
-    (obj.*method)(p);
+    (obj.*method)(fc::path_from_utf8(p));
 }
 
 void configure_logging(const std::string &config)
@@ -52,7 +52,7 @@ struct Wallet : public wa::WalletAPI
 {
     void connect(const std::string &wallet_file, const std::string &server, const std::string &user, const std::string &password)
     {
-        Connect(wallet_file, { server, user, password });
+        Connect(fc::path_from_utf8(wallet_file), { server, user, password });
     }
 
     // wallet file
@@ -61,9 +61,9 @@ struct Wallet : public wa::WalletAPI
     bool lock() { return exec(&wa::wallet_api::lock).wait(); }
     bool unlock(const std::string &password) { return exec(&wa::wallet_api::unlock, password).wait(); }
     void set_password(const std::string &password) { exec(&wa::wallet_api::set_password, password).wait(); }
-    void save(const std::string &filepath) { exec(&wa::wallet_api::save_wallet_file, filepath).wait(); }
-    bool load(const std::string &filepath) { return exec(&wa::wallet_api::load_wallet_file, filepath).wait(); }
-    std::string get_filename() { return exec(&wa::wallet_api::get_wallet_filename).wait().generic_string(); }
+    void save(const std::string &wallet_file) { exec(&wa::wallet_api::save_wallet_file, fc::path_from_utf8(wallet_file)).wait(); }
+    bool load(const std::string &wallet_file) { return exec(&wa::wallet_api::load_wallet_file, fc::path_from_utf8(wallet_file)).wait(); }
+    std::string get_filename() { return fc::path_to_utf8(exec(&wa::wallet_api::get_wallet_filename).wait()); }
     bool import_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_key, account, key).wait(); }
     bool import_single_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_single_key, account, key).wait(); }
     std::string get_private_key(const graphene::chain::public_key_type &pubkey) { return exec(&wa::wallet_api::get_private_key, pubkey).wait(); }
@@ -161,8 +161,8 @@ BOOST_PYTHON_MODULE(dcore)
         .def("lock", &dcore::Wallet::lock)
         .def("unlock", &dcore::Wallet::unlock, (bp::arg("password")))
         .def("set_password", &dcore::Wallet::set_password, (bp::arg("password")))
-        .def("save", &dcore::Wallet::save, (bp::arg("filepath")))
-        .def("load", &dcore::Wallet::load, (bp::arg("filepath")))
+        .def("save", &dcore::Wallet::save, (bp::arg("wallet_file") = ""))
+        .def("load", &dcore::Wallet::load, (bp::arg("wallet_file") = ""))
         .def("import_key", &dcore::Wallet::import_key, (bp::arg("account"), bp::arg("key")))
         .def("import_single_key", &dcore::Wallet::import_single_key, (bp::arg("account"), bp::arg("key")))
         .def("get_private_key", &dcore::Wallet::get_private_key, (bp::arg("pubkey")))
