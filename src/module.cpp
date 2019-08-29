@@ -53,6 +53,8 @@ struct Wallet : public graphene::wallet::WalletAPI
     // general
     graphene::wallet::wallet_about about() { return exec(&graphene::wallet::wallet_api::about).wait(); }
     graphene::wallet::wallet_info info() { return exec(&graphene::wallet::wallet_api::info).wait(); }
+    graphene::chain::global_property_object get_global_properties() { return exec(&graphene::wallet::wallet_api::get_global_properties).wait(); }
+    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return exec(&graphene::wallet::wallet_api::get_dynamic_global_properties).wait(); }
     bp::object get_block(uint32_t num) { return optional_value(exec(&graphene::wallet::wallet_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return exec(&graphene::wallet::wallet_api::head_block_time).wait(); }
 };
@@ -71,6 +73,7 @@ BOOST_PYTHON_MODULE(dcore)
 
     dcore::register_common_types();
     dcore::register_account();
+    dcore::register_chain();
 
     bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
         .def("instance", graphene::utilities::decent_path_finder::instance, bp::return_value_policy<bp::reference_existing_object>())
@@ -135,6 +138,8 @@ BOOST_PYTHON_MODULE(dcore)
         .def("about", &dcore::Wallet::about)
         .def("list_my_accounts", &dcore::Wallet::list_my_accounts)
         .def("info", &dcore::Wallet::info)
+        .def("get_global_properties", &dcore::Wallet::get_global_properties)
+        .def("get_dynamic_global_properties", &dcore::Wallet::get_dynamic_global_properties)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
     ;

@@ -34,6 +34,15 @@ void register_common_types()
     register_hash<fc::sha256>("SHA256");
     register_hash<fc::sha224>("SHA224");
 
+    bp::class_<fc::uint128>("UInt128", bp::init<>())
+        .def(bp::init<uint64_t>())
+        .def(bp::init<const std::string&>())
+        .def("__repr__", object_repr<fc::uint128>)
+        .def("__str__", &fc::uint128::operator std::string)
+        .add_property("hi", &fc::uint128::hi)
+        .add_property("lo", &fc::uint128::lo)
+    ;
+
     bp::class_<fc::time_point_sec>("TimePointSec", bp::init<>())
         .def("__repr__", &fc::time_point_sec::to_iso_string)
         .def("sec_since_epoch", &fc::time_point_sec::sec_since_epoch)
@@ -140,6 +149,12 @@ void register_common_types()
         .add_property("amount", decode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>,
                                 encode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>)
         .add_property("asset_id", &graphene::chain::asset::asset_id)
+    ;
+
+    bp::class_<graphene::chain::price>("Price", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::price>)
+        .add_property("base", &graphene::chain::price::base)
+        .add_property("quote", &graphene::chain::price::quote)
     ;
 }
 

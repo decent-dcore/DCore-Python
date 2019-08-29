@@ -144,5 +144,6 @@ public:
 
 void register_common_types();
 void register_account();
+void register_chain();
 
 } // dcore
