@@ -24,24 +24,6 @@ std::string object_id_str(const T& obj)
     return std::string(static_cast<graphene::db::object_id_type>(obj));
 }
 
-template<typename T>
-bp::list encode_container(const T &container)
-{
-    bp::list l;
-    for(const auto& v : container)
-        l.append(v);
-    return l;
-}
-
-template<typename T>
-void decode_container(T& container, const bp::list &l)
-{
-    auto len = bp::len(l);
-    container.resize(len);
-    while(len--)
-        container[len] = bp::extract<typename T::value_type>(l[len]);
-}
-
 template<typename T, typename Container, const Container T::* container>
 bp::list encode_list(const T &obj)
 {

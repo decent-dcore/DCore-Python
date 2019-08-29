@@ -4,7 +4,27 @@
 #include <graphene/utilities/dirhelper.hpp>
 #include <fc/log/logger_config.hpp>
 
+namespace wa = graphene::wallet;
+
 namespace dcore {
+
+template<typename T>
+bp::list to_list(const T &container)
+{
+    bp::list l;
+    for(const auto& v : container)
+        l.append(v);
+    return l;
+}
+
+template<typename T>
+bp::dict to_dict(const T &container)
+{
+    bp::dict d;
+    for(const auto& v : container)
+        d.setdefault(v.first, v.second);
+    return d;
+}
 
 template<typename T, boost::filesystem::path (T::* method)() const>
 std::string decode_path(const T &obj)
@@ -28,7 +48,7 @@ std::string default_logging()
     return fc::json::to_pretty_string(fc::logging_config::default_config());
 }
 
-struct Wallet : public graphene::wallet::WalletAPI
+struct Wallet : public wa::WalletAPI
 {
     void connect(const std::string &wallet_file, const std::string &server, const std::string &user, const std::string &password)
     {
@@ -36,27 +56,34 @@ struct Wallet : public graphene::wallet::WalletAPI
     }
 
     // wallet file
-    bool is_new() { return exec(&graphene::wallet::wallet_api::is_new).wait(); }
-    bool is_locked() { return exec(&graphene::wallet::wallet_api::is_locked).wait(); }
-    bool lock() { return exec(&graphene::wallet::wallet_api::lock).wait(); }
-    bool unlock(const std::string &password) { return exec(&graphene::wallet::wallet_api::unlock, password).wait(); }
-    void set_password(const std::string &password) { exec(&graphene::wallet::wallet_api::set_password, password).wait(); }
-    void save(const std::string &filepath) { exec(&graphene::wallet::wallet_api::save_wallet_file, filepath).wait(); }
-    bool load(const std::string &filepath) { return exec(&graphene::wallet::wallet_api::load_wallet_file, filepath).wait(); }
-    std::string get_filename() { return exec(&graphene::wallet::wallet_api::get_wallet_filename).wait().generic_string(); }
-    bool import_key(const std::string &account, const std::string &key) { return exec(&graphene::wallet::wallet_api::import_key, account, key).wait(); }
-    bool import_single_key(const std::string &account, const std::string &key) { return exec(&graphene::wallet::wallet_api::import_single_key, account, key).wait(); }
-    std::string get_private_key(const graphene::chain::public_key_type &pubkey) { return exec(&graphene::wallet::wallet_api::get_private_key, pubkey).wait(); }
-    std::string dump_private_keys() { return object_repr(exec(&graphene::wallet::wallet_api::dump_private_keys).wait()); }
-    bp::list list_my_accounts() { return encode_container(exec(&graphene::wallet::wallet_api::list_my_accounts).wait()); }
+    bool is_new() { return exec(&wa::wallet_api::is_new).wait(); }
+    bool is_locked() { return exec(&wa::wallet_api::is_locked).wait(); }
+    bool lock() { return exec(&wa::wallet_api::lock).wait(); }
+    bool unlock(const std::string &password) { return exec(&wa::wallet_api::unlock, password).wait(); }
+    void set_password(const std::string &password) { exec(&wa::wallet_api::set_password, password).wait(); }
+    void save(const std::string &filepath) { exec(&wa::wallet_api::save_wallet_file, filepath).wait(); }
+    bool load(const std::string &filepath) { return exec(&wa::wallet_api::load_wallet_file, filepath).wait(); }
+    std::string get_filename() { return exec(&wa::wallet_api::get_wallet_filename).wait().generic_string(); }
+    bool import_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_key, account, key).wait(); }
+    bool import_single_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_single_key, account, key).wait(); }
+    std::string get_private_key(const graphene::chain::public_key_type &pubkey) { return exec(&wa::wallet_api::get_private_key, pubkey).wait(); }
+    std::string dump_private_keys() { return object_repr(exec(&wa::wallet_api::dump_private_keys).wait()); }
+    bp::list list_my_accounts() { return to_list(exec(&wa::wallet_api::list_my_accounts).wait()); }
 
     // general
-    graphene::wallet::wallet_about about() { return exec(&graphene::wallet::wallet_api::about).wait(); }
-    graphene::wallet::wallet_info info() { return exec(&graphene::wallet::wallet_api::info).wait(); }
-    graphene::chain::global_property_object get_global_properties() { return exec(&graphene::wallet::wallet_api::get_global_properties).wait(); }
-    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return exec(&graphene::wallet::wallet_api::get_dynamic_global_properties).wait(); }
-    bp::object get_block(uint32_t num) { return optional_value(exec(&graphene::wallet::wallet_api::get_block, num).wait()); }
-    fc::time_point_sec head_block_time() { return exec(&graphene::wallet::wallet_api::head_block_time).wait(); }
+    wa::wallet_about about() { return exec(&wa::wallet_api::about).wait(); }
+    wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
+    graphene::chain::global_property_object get_global_properties() { return exec(&wa::wallet_api::get_global_properties).wait(); }
+    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return exec(&wa::wallet_api::get_dynamic_global_properties).wait(); }
+    bp::object get_block(uint32_t num) { return optional_value(exec(&wa::wallet_api::get_block, num).wait()); }
+    fc::time_point_sec head_block_time() { return exec(&wa::wallet_api::head_block_time).wait(); }
+
+    // account
+    uint64_t get_account_count() { return exec(&wa::wallet_api::get_account_count).wait(); }
+    bp::dict list_accounts(const std::string& lowerbound, uint32_t limit) { return to_dict(exec(&wa::wallet_api::list_accounts, lowerbound, limit).wait()); }
+    bp::list search_accounts(const std::string& term, const std::string& order, const std::string& id, uint32_t limit) { return to_list(exec(&wa::wallet_api::search_accounts, term, order, id, limit).wait()); }
+    bp::list list_account_balances(const std::string& account) { return to_list(exec(&wa::wallet_api::list_account_balances, account).wait()); }
+    graphene::chain::account_object get_account(const std::string& account) { return exec(&wa::wallet_api::get_account, account).wait(); }
 };
 
 } // dcore
@@ -101,23 +128,28 @@ BOOST_PYTHON_MODULE(dcore)
         .def_readwrite("build", &decent::about_info::build)
     ;
 
-    bp::class_<graphene::wallet::wallet_about>("AboutFull", bp::init<>())
-        .def("__repr__", dcore::object_repr<graphene::wallet::wallet_about>)
-        .def_readwrite("daemon", &graphene::wallet::wallet_about::daemon_info)
-        .def_readwrite("wallet", &graphene::wallet::wallet_about::wallet_info)
+    bp::class_<wa::wallet_about>("AboutFull", bp::init<>())
+        .def("__repr__", dcore::object_repr<wa::wallet_about>)
+        .def_readwrite("daemon", &wa::wallet_about::daemon_info)
+        .def_readwrite("wallet", &wa::wallet_about::wallet_info)
     ;
 
-    bp::class_<graphene::wallet::wallet_info>("Info", bp::init<>())
-        .def("__repr__", dcore::object_repr<graphene::wallet::wallet_info>)
-        .def_readwrite("head_block_num", &graphene::wallet::wallet_info::head_block_num)
-        .def_readwrite("head_block_id", &graphene::wallet::wallet_info::head_block_id)
-        .def_readwrite("head_block_age", &graphene::wallet::wallet_info::head_block_age)
-        .def_readwrite("next_maintenance_time", &graphene::wallet::wallet_info::next_maintenance_time)
-        .def_readwrite("chain_id", &graphene::wallet::wallet_info::chain_id)
-        .def_readwrite("participation", &graphene::wallet::wallet_info::participation)
+    bp::class_<wa::wallet_info>("Info", bp::init<>())
+        .def("__repr__", dcore::object_repr<wa::wallet_info>)
+        .def_readwrite("head_block_num", &wa::wallet_info::head_block_num)
+        .def_readwrite("head_block_id", &wa::wallet_info::head_block_id)
+        .def_readwrite("head_block_age", &wa::wallet_info::head_block_age)
+        .def_readwrite("next_maintenance_time", &wa::wallet_info::next_maintenance_time)
+        .def_readwrite("chain_id", &wa::wallet_info::chain_id)
+        .def_readwrite("participation", &wa::wallet_info::participation)
         .add_property("active_miners",
-            dcore::encode_list<graphene::wallet::wallet_info, std::vector<graphene::chain::miner_id_type>, &graphene::wallet::wallet_info::active_miners>,
-            dcore::decode_list<graphene::wallet::wallet_info, std::vector<graphene::chain::miner_id_type>, &graphene::wallet::wallet_info::active_miners>)
+            dcore::encode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>,
+            dcore::decode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>)
+    ;
+
+    bp::class_<wa::extended_asset, bp::bases<graphene::chain::asset>>("BalanceEx", bp::no_init)
+        .def("__repr__", dcore::object_repr<wa::extended_asset>)
+        .add_property("pretty_amount", &wa::extended_asset::pretty_amount)
     ;
 
     bp::class_<dcore::Wallet, boost::noncopyable>("Wallet", bp::init<>())
@@ -142,5 +174,10 @@ BOOST_PYTHON_MODULE(dcore)
         .def("get_dynamic_global_properties", &dcore::Wallet::get_dynamic_global_properties)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
+        .def("get_account_count", &dcore::Wallet::get_account_count)
+        .def("list_accounts", &dcore::Wallet::list_accounts, (bp::arg("lowerbound"), bp::arg("limit")))
+        .def("search_accounts", &dcore::Wallet::search_accounts, (bp::arg("term"), bp::arg("order"), bp::arg("id"), bp::arg("limit")))
+        .def("list_account_balances", &dcore::Wallet::list_account_balances, (bp::arg("account")))
+        .def("get_account", &dcore::Wallet::get_account, (bp::arg("account")))
     ;
 }
