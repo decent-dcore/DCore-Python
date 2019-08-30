@@ -114,42 +114,45 @@ BOOST_PYTHON_MODULE(dcore)
                                   dcore::encode_path<graphene::utilities::decent_path_finder, &graphene::utilities::decent_path_finder::set_packages_path>)
     ;
 
-    bp::class_<decent::about_info>("About", bp::init<>())
+    bp::class_<decent::about_info>("About", bp::no_init)
         .def("__repr__", dcore::object_repr<decent::about_info>)
-        .def_readwrite("version", &decent::about_info::version)
-        .def_readwrite("graphene_revision", &decent::about_info::graphene_revision)
-        .def_readwrite("graphene_revision_age", &decent::about_info::graphene_revision_age)
-        .def_readwrite("fc_revision", &decent::about_info::fc_revision)
-        .def_readwrite("fc_revision_age", &decent::about_info::fc_revision_age)
-        .def_readwrite("compile_date", &decent::about_info::compile_date)
-        .def_readwrite("boost_version", &decent::about_info::boost_version)
-        .def_readwrite("openssl_version", &decent::about_info::openssl_version)
-        .def_readwrite("cryptopp_version", &decent::about_info::cryptopp_version)
-        .def_readwrite("build", &decent::about_info::build)
+        .def_readonly("version", &decent::about_info::version)
+        .def_readonly("graphene_revision", &decent::about_info::graphene_revision)
+        .def_readonly("graphene_revision_age", &decent::about_info::graphene_revision_age)
+        .def_readonly("fc_revision", &decent::about_info::fc_revision)
+        .def_readonly("fc_revision_age", &decent::about_info::fc_revision_age)
+        .def_readonly("compile_date", &decent::about_info::compile_date)
+        .def_readonly("boost_version", &decent::about_info::boost_version)
+        .def_readonly("openssl_version", &decent::about_info::openssl_version)
+        .def_readonly("cryptopp_version", &decent::about_info::cryptopp_version)
+        .def_readonly("build", &decent::about_info::build)
     ;
 
-    bp::class_<wa::wallet_about>("AboutFull", bp::init<>())
+    bp::class_<wa::wallet_about>("AboutFull", bp::no_init)
         .def("__repr__", dcore::object_repr<wa::wallet_about>)
-        .def_readwrite("daemon", &wa::wallet_about::daemon_info)
-        .def_readwrite("wallet", &wa::wallet_about::wallet_info)
+        .def_readonly("daemon", &wa::wallet_about::daemon_info)
+        .def_readonly("wallet", &wa::wallet_about::wallet_info)
     ;
 
-    bp::class_<wa::wallet_info>("Info", bp::init<>())
+    bp::class_<wa::wallet_info>("Info", bp::no_init)
         .def("__repr__", dcore::object_repr<wa::wallet_info>)
-        .def_readwrite("head_block_num", &wa::wallet_info::head_block_num)
-        .def_readwrite("head_block_id", &wa::wallet_info::head_block_id)
-        .def_readwrite("head_block_age", &wa::wallet_info::head_block_age)
-        .def_readwrite("next_maintenance_time", &wa::wallet_info::next_maintenance_time)
-        .def_readwrite("chain_id", &wa::wallet_info::chain_id)
-        .def_readwrite("participation", &wa::wallet_info::participation)
-        .add_property("active_miners",
-            dcore::encode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>,
-            dcore::decode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>)
+        .def_readonly("head_block_num", &wa::wallet_info::head_block_num)
+        .def_readonly("head_block_id", &wa::wallet_info::head_block_id)
+        .def_readonly("head_block_age", &wa::wallet_info::head_block_age)
+        .def_readonly("next_maintenance_time", &wa::wallet_info::next_maintenance_time)
+        .def_readonly("chain_id", &wa::wallet_info::chain_id)
+        .def_readonly("participation", &wa::wallet_info::participation)
+        .add_property("active_miners", dcore::encode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>)
     ;
 
     bp::class_<wa::extended_asset, bp::bases<graphene::chain::asset>>("BalanceEx", bp::no_init)
         .def("__repr__", dcore::object_repr<wa::extended_asset>)
-        .add_property("pretty_amount", &wa::extended_asset::pretty_amount)
+        .def_readonly("pretty_amount", &wa::extended_asset::pretty_amount)
+    ;
+
+    bp::class_<wa::signed_transaction_info, bp::bases<graphene::chain::signed_transaction>>("SignedTransactionEx", bp::no_init)
+        .def("__repr__", dcore::object_repr<wa::signed_transaction_info>)
+        .def_readonly("transaction_id", &wa::signed_transaction_info::transaction_id)
     ;
 
     bp::class_<dcore::Wallet, boost::noncopyable>("Wallet", bp::init<>())

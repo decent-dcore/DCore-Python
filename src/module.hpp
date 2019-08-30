@@ -38,8 +38,10 @@ void decode_list(T& obj, const bp::list &l)
 {
     auto len = bp::len(l);
     (obj.*container).resize(len);
-    while(len--)
-        (obj.*container)[len] = bp::extract<typename Container::value_type>(l[len]);
+    while(len--) {
+        bp::extract<typename Container::value_type> v(l[len]);
+        (obj.*container)[len] = v();
+    }
 }
 
 template<typename T, typename Container, const Container T::* container>
@@ -59,7 +61,8 @@ void decode_dict(T& obj, const bp::dict &d)
     (obj.*container).reserve(len);
     while(len--) {
         bp::object k = l[len];
-        (obj.*container)[bp::extract<typename Container::key_type>(k)] = bp::extract<typename Container::mapped_type>(d.get(k));
+        bp::extract<typename Container::mapped_type> v(d.get(k));
+        (obj.*container)[bp::extract<typename Container::key_type>(k)] = v();
     }
 }
 
@@ -76,8 +79,10 @@ template<typename T, typename Container, Container T::* container>
 void decode_set(T& obj, const bp::list &l)
 {
     auto len = bp::len(l);
-    while(len--)
-        (obj.*container).insert(bp::extract<typename Container::value_type>(l[len]));
+    while(len--) {
+        bp::extract<typename Container::value_type> v(l[len]);
+        (obj.*container).insert(v());
+    }
 }
 
 template<typename T, typename V, const fc::safe<V> T::* instance>
