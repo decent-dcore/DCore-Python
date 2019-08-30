@@ -2,6 +2,7 @@
 #include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/block.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
+#include <graphene/utilities/key_conversion.hpp>
 
 namespace dcore {
 
@@ -28,6 +29,11 @@ void register_object_id(const char* name)
     ;
 };
 
+std::string key_to_str(const graphene::chain::private_key_type& key)
+{
+    return graphene::utilities::key_to_wif(key);
+}
+
 void register_common_types()
 {
     register_hash<fc::ripemd160>("RIPEMD160");
@@ -39,8 +45,8 @@ void register_common_types()
         .def(bp::init<const std::string&>())
         .def("__repr__", object_repr<fc::uint128>)
         .def("__str__", &fc::uint128::operator std::string)
-        .add_property("hi", &fc::uint128::hi)
-        .add_property("lo", &fc::uint128::lo)
+        .def_readwrite("hi", &fc::uint128::hi)
+        .def_readwrite("lo", &fc::uint128::lo)
     ;
 
     bp::class_<fc::time_point_sec>("TimePointSec", bp::init<>())
@@ -58,6 +64,7 @@ void register_common_types()
     ;
 
     bp::class_<graphene::chain::public_key_type>("PublicKey", bp::init<std::string>())
+        .def(bp::init<const fc::ecc::public_key>())
         .def("__repr__", object_repr<graphene::chain::public_key_type>)
         .def("__str__", &graphene::chain::public_key_type::operator std::string)
         .def("raw", &graphene::chain::public_key_type::operator fc::ecc::public_key)
@@ -65,6 +72,7 @@ void register_common_types()
 
     bp::class_<graphene::chain::private_key_type>("PrivateKey", bp::no_init)
         .def("__repr__", object_repr<graphene::chain::private_key_type>)
+        .def("__str__", key_to_str)
         .def("get_public_key", &graphene::chain::private_key_type::get_public_key)
         .def("get_shared_secret", &graphene::chain::private_key_type::get_shared_secret)
         .def("sign_compact", &graphene::chain::private_key_type::sign_compact)
@@ -129,9 +137,9 @@ void register_common_types()
         .def("__repr__", object_repr<graphene::chain::transaction>)
         .def("digest", &graphene::chain::transaction::digest)
         .def("signature_digest", &graphene::chain::transaction::sig_digest)
-        .add_property("ref_block_num", &graphene::chain::transaction::ref_block_num)
-        .add_property("ref_block_prefix", &graphene::chain::transaction::ref_block_prefix)
-        .add_property("expiration", &graphene::chain::transaction::expiration)
+        .def_readwrite("ref_block_num", &graphene::chain::transaction::ref_block_num)
+        .def_readwrite("ref_block_prefix", &graphene::chain::transaction::ref_block_prefix)
+        .def_readwrite("expiration", &graphene::chain::transaction::expiration)
         .add_property("operations",
             encode_list<graphene::chain::transaction, std::vector<graphene::chain::operation>, &graphene::chain::transaction::operations>,
             decode_list<graphene::chain::transaction, std::vector<graphene::chain::operation>, &graphene::chain::transaction::operations>)
@@ -158,10 +166,10 @@ void register_common_types()
         .def("block_num", &graphene::chain::block_header::block_num)
         .def("num_from_id", &graphene::chain::block_header::num_from_id)
         .staticmethod("num_from_id")
-        .add_property("previous", &graphene::chain::block_header::previous)
-        .add_property("timestamp", &graphene::chain::block_header::timestamp)
-        .add_property("miner", &graphene::chain::block_header::miner)
-        .add_property("transaction_merkle_root", &graphene::chain::block_header::transaction_merkle_root)
+        .def_readwrite("previous", &graphene::chain::block_header::previous)
+        .def_readwrite("timestamp", &graphene::chain::block_header::timestamp)
+        .def_readwrite("miner", &graphene::chain::block_header::miner)
+        .def_readwrite("transaction_merkle_root", &graphene::chain::block_header::transaction_merkle_root)
     ;
 
     bp::class_<graphene::chain::signed_block_header, bp::bases<graphene::chain::block_header>>("SignedBlockHeader", bp::init<>())
@@ -170,7 +178,7 @@ void register_common_types()
         .def("signee", &graphene::chain::signed_block_header::signee)
         .def("sign", &graphene::chain::signed_block_header::sign)
         .def("validate_signee", &graphene::chain::signed_block_header::validate_signee)
-        .add_property("miner_signature", &graphene::chain::signed_block_header::miner_signature)
+        .def_readwrite("miner_signature", &graphene::chain::signed_block_header::miner_signature)
     ;
 
     bp::class_<graphene::chain::signed_block, bp::bases<graphene::chain::signed_block_header>>("SignedBlock", bp::init<>())
@@ -191,13 +199,13 @@ void register_common_types()
         .def("__repr__", object_repr<graphene::chain::asset>)
         .add_property("amount", decode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>,
                                 encode_safe_type<graphene::chain::asset, int64_t, &graphene::chain::asset::amount>)
-        .add_property("asset_id", &graphene::chain::asset::asset_id)
+        .def_readwrite("asset_id", &graphene::chain::asset::asset_id)
     ;
 
     bp::class_<graphene::chain::price>("Price", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::price>)
-        .add_property("base", &graphene::chain::price::base)
-        .add_property("quote", &graphene::chain::price::quote)
+        .def_readwrite("base", &graphene::chain::price::base)
+        .def_readwrite("quote", &graphene::chain::price::quote)
     ;
 }
 

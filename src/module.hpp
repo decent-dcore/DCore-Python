@@ -122,7 +122,7 @@ public:
     template<typename C>
     static C& wrap(C &instance)
     {
-        instance.add_property("object_id", &T::id);
+        instance.def_readonly("object_id", &T::id);
         instance.def("get_id", &T::get_id);
         instance.def("__repr__", object_repr<T>);
         return instance;
