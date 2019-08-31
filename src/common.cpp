@@ -3,6 +3,8 @@
 #include <graphene/chain/protocol/block.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 #include <graphene/utilities/key_conversion.hpp>
+#include <graphene/utilities/keys_generator.hpp>
+#include <decent/encrypt/encryptionutils.hpp>
 
 namespace dcore {
 
@@ -34,6 +36,21 @@ std::string key_to_str(const graphene::chain::private_key_type& key)
     return graphene::utilities::key_to_wif(key);
 }
 
+std::string derive_el_gamal_key(const graphene::chain::private_key_type& key)
+{
+    return decent::encrypt::generate_private_el_gamal_key_from_secret(key.get_secret()).to_string();
+}
+
+decent::encrypt::DIntegerString generate_el_gamal_key()
+{
+    return decent::encrypt::generate_private_el_gamal_key();
+}
+
+std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_gamal)
+{
+    return decent::encrypt::get_public_el_gamal_key(el_gamal).to_string();
+}
+
 void register_common_types()
 {
     register_hash<fc::ripemd160>("RIPEMD160");
@@ -63,7 +80,7 @@ void register_common_types()
         .def("__repr__", object_repr<fc::ecc::public_key>)
     ;
 
-    bp::class_<graphene::chain::public_key_type>("PublicKey", bp::init<std::string>())
+    bp::class_<graphene::chain::public_key_type>("PublicKey", bp::init<bp::optional<std::string>>())
         .def(bp::init<const fc::ecc::public_key>())
         .def("__repr__", object_repr<graphene::chain::public_key_type>)
         .def("__str__", &graphene::chain::public_key_type::operator std::string)
@@ -76,12 +93,24 @@ void register_common_types()
         .def("get_public_key", &graphene::chain::private_key_type::get_public_key)
         .def("get_shared_secret", &graphene::chain::private_key_type::get_shared_secret)
         .def("sign_compact", &graphene::chain::private_key_type::sign_compact)
+        .def("derive_el_gamal_key", derive_el_gamal_key)
         .def("generate", &graphene::chain::private_key_type::generate)
         .staticmethod("generate")
         .def("regenerate", &graphene::chain::private_key_type::regenerate)
         .staticmethod("regenerate")
         .def("generate_from_seed", &graphene::chain::private_key_type::generate_from_seed)
         .staticmethod("generate_from_seed")
+    ;
+
+    bp::def("generate_brain_key", &graphene::utilities::generate_brain_key);
+    bp::def("derive_private_key", &graphene::utilities::derive_private_key, (bp::arg("brainkey"), bp::arg("sequence") = 0));
+
+    bp::class_<decent::encrypt::DIntegerString>("ElGamalKey", bp::no_init)
+        .def("__repr__", object_repr<decent::encrypt::DIntegerString>)
+        .def("__str__", bp::make_getter(&decent::encrypt::DIntegerString::s))
+        .def("get_public_key", get_public_el_gamal_key)
+        .def("generate", generate_el_gamal_key)
+        .staticmethod("generate")
     ;
 
     bp::class_<graphene::db::object_id_type>("ObjectId", bp::init<uint8_t, uint8_t, uint8_t>())

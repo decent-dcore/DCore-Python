@@ -84,6 +84,8 @@ struct Wallet : public wa::WalletAPI
     bp::list search_accounts(const std::string& term, const std::string& order, const std::string& id, uint32_t limit) { return to_list(exec(&wa::wallet_api::search_accounts, term, order, id, limit).wait()); }
     bp::list list_account_balances(const std::string& account) { return to_list(exec(&wa::wallet_api::list_account_balances, account).wait()); }
     graphene::chain::account_object get_account(const std::string& account) { return exec(&wa::wallet_api::get_account, account).wait(); }
+    wa::signed_transaction_info create_account(const std::string &brainkey, const std::string &name, const std::string &registrar, bool broadcast)
+        { return exec(&wa::wallet_api::create_account_with_brain_key, brainkey, name, registrar, broadcast).wait(); }
     wa::signed_transaction_info register_account(const std::string &name, const graphene::chain::public_key_type &owner, const graphene::chain::public_key_type &active, const graphene::chain::public_key_type &memo,
         const std::string &registrar, bool broadcast) { return exec(&wa::wallet_api::register_account_with_keys, name, owner, active, memo, registrar, broadcast).wait(); }
     wa::signed_transaction_info register_multisig_account(const std::string &name, const graphene::chain::authority &owner, const graphene::chain::authority &active, const graphene::chain::public_key_type &memo,
@@ -192,6 +194,8 @@ BOOST_PYTHON_MODULE(dcore)
         .def("search_accounts", &dcore::Wallet::search_accounts, (bp::arg("term"), bp::arg("order"), bp::arg("id"), bp::arg("limit")))
         .def("list_account_balances", &dcore::Wallet::list_account_balances, (bp::arg("account")))
         .def("get_account", &dcore::Wallet::get_account, (bp::arg("account")))
+        .def("create_account", &dcore::Wallet::create_account,
+            (bp::arg("brainkey"), bp::arg("name"), bp::arg("registrar"), bp::arg("broadcast") = false))
         .def("register_account", &dcore::Wallet::register_account,
             (bp::arg("name"), bp::arg("owner"), bp::arg("active"), bp::arg("memo"), bp::arg("registrar"), bp::arg("broadcast") = false))
         .def("register_multisig_account", &dcore::Wallet::register_multisig_account,
