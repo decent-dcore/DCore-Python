@@ -8,6 +8,13 @@
 
 namespace dcore {
 
+PyObject *exception_class = nullptr;
+
+void exception_translator(const fc::exception &e)
+{
+    PyErr_SetString(exception_class, e.to_detail_string().c_str());
+}
+
 template<typename T>
 void register_hash(const char* name)
 {
@@ -53,6 +60,11 @@ std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_ga
 
 void register_common_types()
 {
+    std::string scopeName = bp::extract<std::string>(bp::scope().attr("__name__"))() + ".Exception";
+    exception_class = PyErr_NewException(scopeName.c_str(), nullptr, nullptr);
+    bp::scope().attr("Exception") = bp::handle<>(bp::borrowed(exception_class));
+    bp::register_exception_translator<fc::exception>(exception_translator);
+
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
     register_hash<fc::sha224>("SHA224");
