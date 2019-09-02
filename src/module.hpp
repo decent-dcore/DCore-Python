@@ -131,6 +131,7 @@ public:
 
 void register_common_types();
 void register_account();
+void register_asset();
 void register_chain();
 
 } // dcore

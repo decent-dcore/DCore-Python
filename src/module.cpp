@@ -96,6 +96,10 @@ struct Wallet : public wa::WalletAPI
         bool broadcast) { return exec(&wa::wallet_api::update_account_keys_to_multisig, name, owner, active, memo, broadcast).wait(); }
     wa::signed_transaction_info transfer(const std::string &from, const std::string &to, double amount, const std::string &symbol, const std::string &memo, bool broadcast)
         { return exec(&wa::wallet_api::transfer, from, to, fc::to_string(amount), symbol, memo, broadcast).wait(); }
+
+    // asset
+    bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(exec(&wa::wallet_api::list_assets, lowerbound, limit).wait()); }
+    graphene::chain::asset_object get_asset(const std::string& asset) { return exec(&wa::wallet_api::get_asset, asset).wait(); }
 };
 
 } // dcore
@@ -112,6 +116,7 @@ BOOST_PYTHON_MODULE(dcore)
 
     dcore::register_common_types();
     dcore::register_account();
+    dcore::register_asset();
     dcore::register_chain();
 
     bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
@@ -206,5 +211,7 @@ BOOST_PYTHON_MODULE(dcore)
             (bp::arg("name"), bp::arg("owner"), bp::arg("active"), bp::arg("memo"), bp::arg("broadcast") = false))
         .def("transfer", &dcore::Wallet::transfer,
             (bp::arg("from"), bp::arg("to"), bp::arg("amount"), bp::arg("symbol"), bp::arg("memo"), bp::arg("broadcast") = false))
+        .def("list_assets", &dcore::Wallet::list_assets, (bp::arg("lowerbound"), bp::arg("limit")))
+        .def("get_asset", &dcore::Wallet::get_asset, (bp::arg("asset")))
     ;
 }

@@ -17,6 +17,7 @@ file(GLOB HEADERS "*.hpp")
 
 add_library( dcore SHARED
              account.cpp
+             asset.cpp
              chain.cpp
              common.cpp
              module.cpp
