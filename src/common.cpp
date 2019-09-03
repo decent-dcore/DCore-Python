@@ -58,12 +58,60 @@ std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_ga
     return decent::encrypt::get_public_el_gamal_key(el_gamal).to_string();
 }
 
+struct variant_to_python
+{
+    static PyObject* convert(const fc::variant& v)
+    {
+        if(v.is_bool())
+            return PyBool_FromLong(v.as_int64());
+        else if(v.is_int64())
+            return PyLong_FromLongLong(v.as_int64());
+        else if(v.is_uint64())
+            return PyLong_FromUnsignedLongLong(v.as_uint64());
+        else if(v.is_string())
+            return PyUnicode_FromString(v.as_string().c_str());
+        Py_RETURN_NONE;
+    }
+};
+
+struct variant_from_python
+{
+    static void* convertible(PyObject* obj)
+    {
+        return obj == Py_None || PyBool_Check(obj) || PyLong_Check(obj) || PyUnicode_Check(obj) ? obj : nullptr;
+    }
+
+    static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data)
+    {
+        void* storage = ((boost::python::converter::rvalue_from_python_storage<fc::variant>*)data)->storage.bytes;
+        if(PyBool_Check(obj))
+            new (storage)fc::variant(obj == Py_True);
+        else if(PyLong_Check(obj)) {
+            int overflow = 0;
+            int64_t v = PyLong_AsLongLongAndOverflow(obj, &overflow);
+            if(overflow)
+                new (storage)fc::variant(PyLong_AsUnsignedLongLong(obj));
+            else
+                new (storage)fc::variant(v);
+        }
+        else if(PyUnicode_Check(obj))
+            new (storage)fc::variant(PyUnicode_AsUTF8(obj));
+        else
+            new (storage)fc::variant();
+
+        data->convertible = storage;
+    }
+};
+
 void register_common_types()
 {
     std::string scopeName = bp::extract<std::string>(bp::scope().attr("__name__"))() + ".Exception";
     exception_class = PyErr_NewException(scopeName.c_str(), nullptr, nullptr);
     bp::scope().attr("Exception") = bp::handle<>(bp::borrowed(exception_class));
     bp::register_exception_translator<fc::exception>(exception_translator);
+
+    bp::to_python_converter<fc::variant, variant_to_python>();
+    bp::converter::registry::push_back(variant_from_python::convertible, variant_from_python::construct, bp::type_id<fc::variant>());
 
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
