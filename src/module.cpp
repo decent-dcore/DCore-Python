@@ -118,6 +118,7 @@ BOOST_PYTHON_MODULE(dcore)
     dcore::register_account();
     dcore::register_asset();
     dcore::register_chain();
+    dcore::register_nft();
 
     bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
         .def("instance", graphene::utilities::decent_path_finder::instance, bp::return_value_policy<bp::reference_existing_object>())

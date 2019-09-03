@@ -13,6 +13,7 @@ add_library( dcore SHARED
              chain.cpp
              common.cpp
              module.cpp
+             nft.cpp
              ${HEADERS}
            )
 
