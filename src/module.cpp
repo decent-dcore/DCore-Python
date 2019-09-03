@@ -100,6 +100,24 @@ struct Wallet : public wa::WalletAPI
     // asset
     bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(exec(&wa::wallet_api::list_assets, lowerbound, limit).wait()); }
     graphene::chain::asset_object get_asset(const std::string& asset) { return exec(&wa::wallet_api::get_asset, asset).wait(); }
+    wa::signed_transaction_info create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds,
+       bool broadcast) { return exec(&wa::wallet_api::create_monitored_asset, issuer, symbol, precision, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
+    wa::signed_transaction_info update_monitored_asset(const std::string &symbol, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
+       { return exec(&wa::wallet_api::update_monitored_asset, symbol, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
+    wa::signed_transaction_info create_user_issued_asset(const std::string& issuer, const std::string& symbol, uint8_t precision, const std::string& description, uint64_t max_supply, const graphene::chain::price& core_exchange_rate,
+       bool exchangeable, bool fixed_max_supply, bool broadcast) { return exec(&wa::wallet_api::create_user_issued_asset, issuer, symbol, precision, description, max_supply, core_exchange_rate, exchangeable, fixed_max_supply, broadcast).wait(); }
+    wa::signed_transaction_info update_user_issued_asset(const std::string& symbol, const std::string& issuer, const std::string& description, uint64_t max_supply, const graphene::chain::price& core_exchange_rate,
+       bool exchangeable, bool broadcast) { return exec(&wa::wallet_api::update_user_issued_asset, symbol, issuer, description, max_supply, core_exchange_rate, exchangeable, broadcast).wait(); }
+    wa::signed_transaction_info issue_asset(const std::string& account, double amount, const std::string& symbol, const std::string& memo, bool broadcast)
+       { return exec(&wa::wallet_api::issue_asset, account, fc::to_string(amount), symbol, memo, broadcast).wait(); }
+    wa::signed_transaction_info fund_asset_pools(const std::string& account, double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
+       { return exec(&wa::wallet_api::fund_asset_pools, account, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
+    wa::signed_transaction_info reserve_asset(const std::string& account, double amount, const std::string& symbol, bool broadcast)
+       { return exec(&wa::wallet_api::reserve_asset, account, fc::to_string(amount), symbol, broadcast).wait(); }
+    wa::signed_transaction_info claim_fees(double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
+       { return exec(&wa::wallet_api::claim_fees, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
+    wa::signed_transaction_info publish_asset_feed(const std::string& account, const std::string& symbol, const graphene::chain::price_feed& feed, bool broadcast)
+       { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
 };
 
 } // dcore
@@ -214,5 +232,24 @@ BOOST_PYTHON_MODULE(dcore)
             (bp::arg("from"), bp::arg("to"), bp::arg("amount"), bp::arg("symbol"), bp::arg("memo"), bp::arg("broadcast") = false))
         .def("list_assets", &dcore::Wallet::list_assets, (bp::arg("lowerbound"), bp::arg("limit")))
         .def("get_asset", &dcore::Wallet::get_asset, (bp::arg("asset")))
+        .def("create_monitored_asset", &dcore::Wallet::create_monitored_asset,
+            (bp::arg("issuer"), bp::arg("symbol"), bp::arg("precision"), bp::arg("description"), bp::arg("feed_lifetime_sec"), bp::arg("minimum_feeds"), bp::arg("broadcast") = false))
+        .def("update_monitored_asset", &dcore::Wallet::update_monitored_asset,
+            (bp::arg("symbol"), bp::arg("description"), bp::arg("feed_lifetime_sec"), bp::arg("minimum_feeds"), bp::arg("broadcast") = false))
+        .def("create_user_issued_asset", &dcore::Wallet::create_user_issued_asset,
+            (bp::arg("issuer"), bp::arg("symbol"), bp::arg("precision"), bp::arg("description"), bp::arg("max_supply"), bp::arg("core_exchange_rate"),
+             bp::arg("exchangeable"), bp::arg("fixed_max_supply"), bp::arg("broadcast") = false))
+        .def("update_user_issued_asset", &dcore::Wallet::update_user_issued_asset,
+            (bp::arg("symbol"), bp::arg("issuer"), bp::arg("description"), bp::arg("max_supply"), bp::arg("core_exchange_rate"), bp::arg("exchangeable"), bp::arg("broadcast") = false))
+        .def("issue_asset", &dcore::Wallet::issue_asset,
+            (bp::arg("account"), bp::arg("amount"), bp::arg("symbol"), bp::arg("memo"), bp::arg("broadcast") = false))
+        .def("fund_asset_pools", &dcore::Wallet::fund_asset_pools,
+            (bp::arg("account"), bp::arg("uia_amount"), bp::arg("uia_symbol"), bp::arg("dct_amount"), bp::arg("dct_symbol"), bp::arg("broadcast") = false))
+        .def("reserve_asset", &dcore::Wallet::reserve_asset,
+            (bp::arg("account"), bp::arg("amount"), bp::arg("symbol"), bp::arg("broadcast") = false))
+        .def("claim_fees", &dcore::Wallet::claim_fees,
+            (bp::arg("uia_amount"), bp::arg("uia_symbol"), bp::arg("dct_amount"), bp::arg("dct_symbol"), bp::arg("broadcast") = false))
+        .def("publish_asset_feed", &dcore::Wallet::publish_asset_feed,
+            (bp::arg("account"), bp::arg("symbol"), bp::arg("feed"), bp::arg("broadcast") = false))
     ;
 }
