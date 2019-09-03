@@ -58,12 +58,12 @@ std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_ga
     return decent::encrypt::get_public_el_gamal_key(el_gamal).to_string();
 }
 
-struct variant_to_python
+struct variant_converter
 {
     static PyObject* convert(const fc::variant& v)
     {
         if(v.is_bool())
-            return PyBool_FromLong(v.as_int64());
+            return PyBool_FromLong(static_cast<long>(v.as_int64()));
         else if(v.is_int64())
             return PyLong_FromLongLong(v.as_int64());
         else if(v.is_uint64())
@@ -72,10 +72,7 @@ struct variant_to_python
             return PyUnicode_FromString(v.as_string().c_str());
         Py_RETURN_NONE;
     }
-};
 
-struct variant_from_python
-{
     static void* convertible(PyObject* obj)
     {
         return obj == Py_None || PyBool_Check(obj) || PyLong_Check(obj) || PyUnicode_Check(obj) ? obj : nullptr;
@@ -110,8 +107,8 @@ void register_common_types()
     bp::scope().attr("Exception") = bp::handle<>(bp::borrowed(exception_class));
     bp::register_exception_translator<fc::exception>(exception_translator);
 
-    bp::to_python_converter<fc::variant, variant_to_python>();
-    bp::converter::registry::push_back(variant_from_python::convertible, variant_from_python::construct, bp::type_id<fc::variant>());
+    bp::to_python_converter<fc::variant, variant_converter>();
+    bp::converter::registry::push_back(variant_converter::convertible, variant_converter::construct, bp::type_id<fc::variant>());
 
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
