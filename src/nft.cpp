@@ -21,6 +21,14 @@ void register_nft()
         .value("Boolean", nft_data_type::boolean)
     ;
 
+    typedef std::pair<std::string, fc::variant> nft_data_value;
+    bp::class_<nft_data_value>("NonFungibleTokenDataValue", bp::init<>())
+        .def(bp::init<std::string, fc::variant>())
+        .def("__repr__", object_repr<nft_data_value>)
+        .def_readwrite("name", &nft_data_value::first)
+        .def_readwrite("value", &nft_data_value::second)
+    ;
+
     bp::class_<graphene::chain::non_fungible_token_data_type>("NonFungibleTokenDataDefinition", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::non_fungible_token_data_type>)
         .def_readwrite("unique", &graphene::chain::non_fungible_token_data_type::unique)

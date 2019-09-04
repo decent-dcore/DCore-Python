@@ -9,6 +9,31 @@ namespace wa = graphene::wallet;
 namespace dcore {
 
 template<typename T>
+std::vector<T> vector_from_list(const bp::list &l)
+{
+    std::vector<T> obj;
+    auto len = bp::len(l);
+    obj.resize(len);
+    while(len--) {
+        bp::extract<T> v(l[len]);
+        obj[len] = v();
+    }
+    return obj;
+}
+
+template<typename T>
+std::set<T> set_from_list(const bp::list &l)
+{
+    std::set<T> obj;
+    auto len = bp::len(l);
+    while(len--) {
+        bp::extract<T> v(l[len]);
+        obj.insert(v());
+    }
+    return obj;
+}
+
+template<typename T>
 bp::list to_list(const T &container)
 {
     bp::list l;
@@ -118,6 +143,25 @@ struct Wallet : public wa::WalletAPI
        { return exec(&wa::wallet_api::claim_fees, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
     wa::signed_transaction_info publish_asset_feed(const std::string& account, const std::string& symbol, const graphene::chain::price_feed& feed, bool broadcast)
        { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
+
+    // non fungible token
+    bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(exec(&wa::wallet_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
+    graphene::chain::non_fungible_token_object get_non_fungible_token(const std::string& nft) { return exec(&wa::wallet_api::get_non_fungible_token, nft).wait(); }
+    bp::list list_non_fungible_token_data(const std::string& nft) { return to_list(exec(&wa::wallet_api::list_non_fungible_token_data, nft).wait()); }
+    bp::dict get_non_fungible_token_summary(const string& account) { return to_dict(exec(&wa::wallet_api::get_non_fungible_token_summary, account).wait()); }
+    bp::list get_non_fungible_token_balances(const string& account, const bp::list nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
+    wa::signed_transaction_info create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
+        bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<graphene::chain::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
+    wa::signed_transaction_info update_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, uint32_t max_supply, bool fixed_max_supply, bool broadcast)
+        { return exec(&wa::wallet_api::update_non_fungible_token, issuer, symbol, description, max_supply, fixed_max_supply, broadcast).wait(); }
+    wa::signed_transaction_info issue_non_fungible_token(const std::string& account, const std::string& symbol, const bp::list& data, const std::string& memo, bool broadcast)
+        { return exec(&wa::wallet_api::issue_non_fungible_token, account, symbol, vector_from_list<fc::variant>(data), memo, broadcast).wait(); }
+    wa::signed_transaction_info transfer_non_fungible_token_data(const std::string& account, const graphene::chain::non_fungible_token_data_id_type& nft_data_id, const std::string& memo, bool broadcast)
+        { return exec(&wa::wallet_api::transfer_non_fungible_token_data, account, nft_data_id, memo, broadcast).wait(); }
+    wa::signed_transaction_info burn_non_fungible_token_data(const graphene::chain::non_fungible_token_data_id_type& nft_data_id, bool broadcast)
+        { return exec(&wa::wallet_api::burn_non_fungible_token_data, nft_data_id, broadcast).wait(); }
+    wa::signed_transaction_info update_non_fungible_token_data(const std::string& modifier, const graphene::chain::non_fungible_token_data_id_type& nft_data_id, const bp::list& data, bool broadcast)
+        { return exec(&wa::wallet_api::update_non_fungible_token_data, modifier, nft_data_id, vector_from_list<std::pair<std::string, fc::variant>>(data), broadcast).wait(); }
 };
 
 } // dcore
@@ -251,5 +295,19 @@ BOOST_PYTHON_MODULE(dcore)
             (bp::arg("uia_amount"), bp::arg("uia_symbol"), bp::arg("dct_amount"), bp::arg("dct_symbol"), bp::arg("broadcast") = false))
         .def("publish_asset_feed", &dcore::Wallet::publish_asset_feed,
             (bp::arg("account"), bp::arg("symbol"), bp::arg("feed"), bp::arg("broadcast") = false))
+        .def("list_non_fungible_tokens", &dcore::Wallet::list_non_fungible_tokens, (bp::arg("lowerbound"), bp::arg("limit")))
+        .def("get_non_fungible_token", &dcore::Wallet::get_non_fungible_token, (bp::arg("nft")))
+        .def("list_non_fungible_token_data", &dcore::Wallet::list_non_fungible_token_data, (bp::arg("nft")))
+        .def("get_non_fungible_token_summary", &dcore::Wallet::get_non_fungible_token_summary, (bp::arg("account")))
+        .def("get_non_fungible_token_balances", &dcore::Wallet::get_non_fungible_token_balances, (bp::arg("account"), (bp::arg("nfts"))))
+        .def("create_non_fungible_token", &dcore::Wallet::create_non_fungible_token,
+            (bp::arg("issuer"), bp::arg("symbol"), bp::arg("description"), bp::arg("definitions"), bp::arg("max_supply"),
+             bp::arg("fixed_max_supply"), bp::arg("transferable"), bp::arg("broadcast") = false))
+        .def("update_non_fungible_token", &dcore::Wallet::update_non_fungible_token,
+            (bp::arg("issuer"), bp::arg("symbol"), bp::arg("description"), bp::arg("max_supply"), bp::arg("fixed_max_supply"), bp::arg("broadcast") = false))
+        .def("issue_non_fungible_token", &dcore::Wallet::issue_non_fungible_token, (bp::arg("account"), bp::arg("symbol"), bp::arg("data"), bp::arg("memo"), bp::arg("broadcast") = false))
+        .def("transfer_non_fungible_token_data", &dcore::Wallet::transfer_non_fungible_token_data, (bp::arg("account"), bp::arg("nft_data_id"), bp::arg("memo"), bp::arg("broadcast") = false))
+        .def("burn_non_fungible_token_data", &dcore::Wallet::burn_non_fungible_token_data, (bp::arg("nft_data_id"), bp::arg("broadcast") = false))
+        .def("update_non_fungible_token_data", &dcore::Wallet::update_non_fungible_token_data, (bp::arg("modifier"), bp::arg("nft_data_id"), bp::arg("data"), bp::arg("broadcast") = false))
     ;
 }
