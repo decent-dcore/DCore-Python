@@ -3,6 +3,8 @@ add_subdirectory(DCore EXCLUDE_FROM_ALL)
 set(PYTHON_VERSION "3" CACHE STRING "Python version")
 set(Python_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
 find_package(Python3 COMPONENTS Development Interpreter)
+
+set(Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.65.1 REQUIRED COMPONENTS "python${PYTHON_VERSION}")
 
 file(GLOB HEADERS "*.hpp")
