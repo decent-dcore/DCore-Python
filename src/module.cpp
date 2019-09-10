@@ -172,6 +172,8 @@ struct Wallet : public wa::WalletAPI
 
 BOOST_PYTHON_MODULE(dcore)
 {
+    bp::docstring_options doc_options(true, true, false);
+
     fc::configure_logging(fc::logging_config());
     bp::def("configure_logging", dcore::configure_logging);
     bp::def("default_logging", dcore::default_logging);
@@ -240,7 +242,7 @@ BOOST_PYTHON_MODULE(dcore)
         .add_property("locked", &dcore::Wallet::is_locked)
         .add_property("connected", &dcore::Wallet::is_connected)
         .add_property("filename", &dcore::Wallet::get_filename)
-        .def("connect", &dcore::Wallet::connect, (bp::arg("wallet_file"), bp::arg("server") = "ws://localhost:8090", bp::arg("user") = "", bp::arg("password") = ""))
+        .def("connect", &dcore::Wallet::connect, (bp::arg("wallet_file"), bp::arg("server") = "", bp::arg("user") = "", bp::arg("password") = ""))
         .def("lock", &dcore::Wallet::lock)
         .def("unlock", &dcore::Wallet::unlock, (bp::arg("password")))
         .def("set_password", &dcore::Wallet::set_password, (bp::arg("password")))

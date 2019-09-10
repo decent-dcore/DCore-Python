@@ -18,4 +18,10 @@ def dump_accounts_balances(wallet):
         print(f'{name}:', ', '.join([b.pretty_amount for b in wallet.list_account_balances(str(id))]))
 
 def calculate_signature(trx, key, chain_id):
+    """Calculate transaction signature.
+
+       trx - transaction to be signed
+       key - signing private key
+       chain_id - chain identification
+    """
     return key.sign_compact(trx.signature_digest(chain_id), True)
