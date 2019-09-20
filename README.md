@@ -82,8 +82,6 @@ In order to build and install DCore-Python, execute in console:
 
 > Note for Ubuntu 18.04 LTS, you have to change value of `-DPYTHON_VERSION=` to `36` during the initial configuration.
 
-> Note for MacOS, you have to add `-DCMAKE_PREFIX_PATH=/usr/local/opt/openssl@1.1` to the `cmake` command line during the initial configuration.
-
 ### Building and installing DCore-Python in Windows
 
 In order to build and install DCore-Python follow the steps:

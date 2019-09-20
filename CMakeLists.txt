@@ -9,7 +9,7 @@ if (POLICY CMP0048)
 endif()
 
 cmake_minimum_required( VERSION 3.12.0 FATAL_ERROR )
-project( DCore-Python VERSION 1.4.1 LANGUAGES CXX )
+project( DCore-Python VERSION 1.4.2 LANGUAGES CXX )
 
 if( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     if( CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.1 )
