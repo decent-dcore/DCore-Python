@@ -43,6 +43,15 @@ bp::list to_list(const T &container)
 }
 
 template<typename T>
+bp::list to_optional_list(const std::vector<fc::optional<T>> &container)
+{
+    bp::list l;
+    for(const auto& v : container)
+        v.valid() ? l.append(*v) : l.append(bp::object());
+    return l;
+}
+
+template<typename T>
 bp::dict to_dict(const T &container)
 {
     bp::dict d;
@@ -98,17 +107,18 @@ struct Wallet : public wa::WalletAPI
     // general
     wa::wallet_about about() { return exec(&wa::wallet_api::about).wait(); }
     wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
-    graphene::chain::global_property_object get_global_properties() { return exec(&wa::wallet_api::get_global_properties).wait(); }
-    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return exec(&wa::wallet_api::get_dynamic_global_properties).wait(); }
-    bp::object get_block(uint32_t num) { return encode_optional_value(exec(&wa::wallet_api::get_block, num).wait()); }
-    fc::time_point_sec head_block_time() { return exec(&wa::wallet_api::head_block_time).wait(); }
+    graphene::chain::global_property_object get_global_properties() { return query(&wa::db_api::get_global_properties).wait(); }
+    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return query(&wa::db_api::get_dynamic_global_properties).wait(); }
+    bp::object get_block(uint32_t num) { return encode_optional_value(query(&wa::db_api::get_block, num).wait()); }
+    fc::time_point_sec head_block_time() { return query(&wa::db_api::head_block_time).wait(); }
 
     // account
-    uint64_t get_account_count() { return exec(&wa::wallet_api::get_account_count).wait(); }
-    bp::dict list_accounts(const std::string& lowerbound, uint32_t limit) { return to_dict(exec(&wa::wallet_api::list_accounts, lowerbound, limit).wait()); }
-    bp::list search_accounts(const std::string& term, const std::string& order, const std::string& id, uint32_t limit) { return to_list(exec(&wa::wallet_api::search_accounts, term, order, id, limit).wait()); }
+    uint64_t get_account_count() { return query(&wa::db_api::get_account_count).wait(); }
+    bp::object get_account(const std::string& name) { return encode_optional_value(query(&wa::db_api::get_account_by_name, name).wait()); }
+    bp::dict lookup_accounts(const std::string& lowerbound, uint32_t limit) { return to_dict(query(&wa::db_api::lookup_accounts, lowerbound, limit).wait()); }
+    bp::list search_accounts(const std::string& term, const std::string& order, graphene::db::object_id_type id, uint32_t limit) { return to_list(query(&wa::db_api::search_accounts, term, order, id, limit).wait()); }
+    bp::list get_accounts(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_accounts, vector_from_list<graphene::chain::account_id_type>(ids)).wait()); }
     bp::list list_account_balances(const std::string& account) { return to_list(exec(&wa::wallet_api::list_account_balances, account).wait()); }
-    graphene::chain::account_object get_account(const std::string& account) { return exec(&wa::wallet_api::get_account, account).wait(); }
     wa::signed_transaction_info create_account(const std::string &brainkey, const std::string &name, const std::string &registrar, bool broadcast)
         { return exec(&wa::wallet_api::create_account_with_brain_key, brainkey, name, registrar, broadcast).wait(); }
     wa::signed_transaction_info register_account(const std::string &name, const graphene::chain::public_key_type &owner, const graphene::chain::public_key_type &active, const graphene::chain::public_key_type &memo,
@@ -123,8 +133,8 @@ struct Wallet : public wa::WalletAPI
         { return exec(&wa::wallet_api::transfer, from, to, fc::to_string(amount), symbol, memo, broadcast).wait(); }
 
     // asset
-    bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(exec(&wa::wallet_api::list_assets, lowerbound, limit).wait()); }
-    graphene::chain::asset_object get_asset(const std::string& asset) { return exec(&wa::wallet_api::get_asset, asset).wait(); }
+    bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_assets, lowerbound, limit).wait()); }
+    bp::list get_assets(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_assets, vector_from_list<graphene::chain::asset_id_type>(ids)).wait()); }
     wa::signed_transaction_info create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds,
        bool broadcast) { return exec(&wa::wallet_api::create_monitored_asset, issuer, symbol, precision, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
     wa::signed_transaction_info update_monitored_asset(const std::string &symbol, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
@@ -145,11 +155,11 @@ struct Wallet : public wa::WalletAPI
        { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
 
     // non fungible token
-    bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(exec(&wa::wallet_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
-    graphene::chain::non_fungible_token_object get_non_fungible_token(const std::string& nft) { return exec(&wa::wallet_api::get_non_fungible_token, nft).wait(); }
-    bp::list list_non_fungible_token_data(const std::string& nft) { return to_list(exec(&wa::wallet_api::list_non_fungible_token_data, nft).wait()); }
-    bp::dict get_non_fungible_token_summary(const string& account) { return to_dict(exec(&wa::wallet_api::get_non_fungible_token_summary, account).wait()); }
-    bp::list get_non_fungible_token_balances(const string& account, const bp::list nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
+    bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
+    bp::list get_non_fungible_tokens(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_non_fungible_tokens, vector_from_list<graphene::chain::non_fungible_token_id_type>(ids)).wait()); }
+    bp::list list_non_fungible_token_data(const graphene::chain::non_fungible_token_id_type& nft) { return to_list(query(&wa::db_api::list_non_fungible_token_data, nft).wait()); }
+    bp::dict get_non_fungible_token_summary(const graphene::chain::account_id_type& account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
+    bp::list get_non_fungible_token_balances(const string& account, const bp::list& nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
     wa::signed_transaction_info create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
         bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<graphene::chain::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
     wa::signed_transaction_info update_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, uint32_t max_supply, bool fixed_max_supply, bool broadcast)
@@ -261,10 +271,11 @@ BOOST_PYTHON_MODULE(dcore)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
         .def("get_account_count", &dcore::Wallet::get_account_count)
-        .def("list_accounts", &dcore::Wallet::list_accounts, (bp::arg("lowerbound"), bp::arg("limit")))
+        .def("get_account", &dcore::Wallet::get_account, (bp::arg("name")))
+        .def("lookup_accounts", &dcore::Wallet::lookup_accounts, (bp::arg("lowerbound"), bp::arg("limit")))
         .def("search_accounts", &dcore::Wallet::search_accounts, (bp::arg("term"), bp::arg("order"), bp::arg("id"), bp::arg("limit")))
         .def("list_account_balances", &dcore::Wallet::list_account_balances, (bp::arg("account")))
-        .def("get_account", &dcore::Wallet::get_account, (bp::arg("account")))
+        .def("get_accounts", &dcore::Wallet::get_accounts, (bp::arg("ids")))
         .def("create_account", &dcore::Wallet::create_account,
             (bp::arg("brainkey"), bp::arg("name"), bp::arg("registrar"), bp::arg("broadcast") = false))
         .def("register_account", &dcore::Wallet::register_account,
@@ -278,7 +289,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("transfer", &dcore::Wallet::transfer,
             (bp::arg("from"), bp::arg("to"), bp::arg("amount"), bp::arg("symbol"), bp::arg("memo"), bp::arg("broadcast") = false))
         .def("list_assets", &dcore::Wallet::list_assets, (bp::arg("lowerbound"), bp::arg("limit")))
-        .def("get_asset", &dcore::Wallet::get_asset, (bp::arg("asset")))
+        .def("get_assets", &dcore::Wallet::get_assets, (bp::arg("ids")))
         .def("create_monitored_asset", &dcore::Wallet::create_monitored_asset,
             (bp::arg("issuer"), bp::arg("symbol"), bp::arg("precision"), bp::arg("description"), bp::arg("feed_lifetime_sec"), bp::arg("minimum_feeds"), bp::arg("broadcast") = false))
         .def("update_monitored_asset", &dcore::Wallet::update_monitored_asset,
@@ -299,7 +310,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("publish_asset_feed", &dcore::Wallet::publish_asset_feed,
             (bp::arg("account"), bp::arg("symbol"), bp::arg("feed"), bp::arg("broadcast") = false))
         .def("list_non_fungible_tokens", &dcore::Wallet::list_non_fungible_tokens, (bp::arg("lowerbound"), bp::arg("limit")))
-        .def("get_non_fungible_token", &dcore::Wallet::get_non_fungible_token, (bp::arg("nft")))
+        .def("get_non_fungible_tokens", &dcore::Wallet::get_non_fungible_tokens, (bp::arg("ids")))
         .def("list_non_fungible_token_data", &dcore::Wallet::list_non_fungible_token_data, (bp::arg("nft")))
         .def("get_non_fungible_token_summary", &dcore::Wallet::get_non_fungible_token_summary, (bp::arg("account")))
         .def("get_non_fungible_token_balances", &dcore::Wallet::get_non_fungible_token_balances, (bp::arg("account"), (bp::arg("nfts"))))

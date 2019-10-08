@@ -17,7 +17,7 @@ Wallet.mainnet = staticmethod(lambda wallet_file = WALLET_FILE: _wallet(wallet_f
 Wallet.testnet = staticmethod(lambda wallet_file = WALLET_FILE: _wallet(wallet_file, TESTNET_ENDPOINT))
 
 def dump_accounts_balances(wallet):
-    for name, id in wallet.list_accounts('', wallet.get_account_count()).items():
+    for name, id in wallet.lookup_accounts('', wallet.get_account_count()).items():
         print(f'{name}:', ', '.join([b.pretty_amount for b in wallet.list_account_balances(str(id))]))
 
 def calculate_signature(trx, key, chain_id):
