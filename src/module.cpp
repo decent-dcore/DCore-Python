@@ -172,6 +172,10 @@ struct Wallet : public wa::WalletAPI
         { return exec(&wa::wallet_api::burn_non_fungible_token_data, nft_data_id, broadcast).wait(); }
     wa::signed_transaction_info update_non_fungible_token_data(const std::string& modifier, const graphene::chain::non_fungible_token_data_id_type& nft_data_id, const bp::list& data, bool broadcast)
         { return exec(&wa::wallet_api::update_non_fungible_token_data, modifier, nft_data_id, vector_from_list<std::pair<std::string, fc::variant>>(data), broadcast).wait(); }
+
+    // network broadcast
+    void broadcast_transaction(const graphene::chain::signed_transaction& trx) { broadcast(&wa::net_api::broadcast_transaction, trx).wait(); }
+    void broadcast_block(const graphene::chain::signed_block& block) { broadcast(&wa::net_api::broadcast_block, block).wait(); }
 };
 
 } // dcore
@@ -323,5 +327,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("transfer_non_fungible_token_data", &dcore::Wallet::transfer_non_fungible_token_data, (bp::arg("account"), bp::arg("nft_data_id"), bp::arg("memo"), bp::arg("broadcast") = false))
         .def("burn_non_fungible_token_data", &dcore::Wallet::burn_non_fungible_token_data, (bp::arg("nft_data_id"), bp::arg("broadcast") = false))
         .def("update_non_fungible_token_data", &dcore::Wallet::update_non_fungible_token_data, (bp::arg("modifier"), bp::arg("nft_data_id"), bp::arg("data"), bp::arg("broadcast") = false))
+        .def("broadcast_transaction", &dcore::Wallet::broadcast_transaction, (bp::arg("trx")))
+        .def("broadcast_block", &dcore::Wallet::broadcast_block, (bp::arg("block")))
     ;
 }
