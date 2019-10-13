@@ -98,7 +98,17 @@ void encode_safe_type(T& obj, const V &v)
 }
 
 template<typename T>
-bp::object optional_value(const T& obj)
+fc::optional<T> decode_optional_value(const bp::object& obj)
+{
+    if(obj.is_none())
+        return {};
+
+    bp::extract<T> v(obj);
+    return v();
+}
+
+template<typename T>
+bp::object encode_optional_value(const fc::optional<T>& obj)
 {
     return obj.valid() ? bp::object(*obj) : bp::object();
 }
@@ -106,7 +116,7 @@ bp::object optional_value(const T& obj)
 template<typename T, typename V, const fc::optional<V> T::* instance>
 bp::object decode_optional_type(const T& obj)
 {
-    return optional_value(obj.*instance);
+    return encode_optional_value(obj.*instance);
 }
 
 template<typename T, typename V, fc::optional<V> T::* instance>
@@ -134,5 +144,6 @@ void register_account();
 void register_asset();
 void register_chain();
 void register_nft();
+void register_operation();
 
 } // dcore

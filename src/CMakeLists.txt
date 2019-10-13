@@ -16,6 +16,7 @@ add_library( dcore SHARED
              common.cpp
              module.cpp
              nft.cpp
+             operation.cpp
              ${HEADERS}
            )
 

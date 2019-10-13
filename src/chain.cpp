@@ -27,6 +27,10 @@ void register_chain()
             encode_set<graphene::chain::fee_schedule, boost::container::flat_set<graphene::chain::fee_parameters>, &graphene::chain::fee_schedule::parameters>,
             decode_set<graphene::chain::fee_schedule, boost::container::flat_set<graphene::chain::fee_parameters>, &graphene::chain::fee_schedule::parameters>)
         .def_readwrite("scale", &graphene::chain::fee_schedule::scale)
+        .def("calculate_fee", &graphene::chain::fee_schedule::calculate_fee)
+        .def("set_fee", &graphene::chain::fee_schedule::set_fee)
+        .def("get_default", graphene::chain::fee_schedule::get_default)
+        .staticmethod("get_default")
     ;
 
     bp::class_<graphene::chain::chain_parameters>("ChainParameters", bp::init<>())

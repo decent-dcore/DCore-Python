@@ -43,6 +43,11 @@ std::string key_to_str(const graphene::chain::private_key_type& key)
     return graphene::utilities::key_to_wif(key);
 }
 
+bp::object key_from_str(const std::string& key)
+{
+    return encode_optional_value<graphene::chain::private_key_type>(graphene::utilities::wif_to_key(key));
+}
+
 std::string derive_el_gamal_key(const graphene::chain::private_key_type& key)
 {
     return decent::encrypt::generate_private_el_gamal_key_from_secret(key.get_secret()).to_string();
@@ -57,6 +62,44 @@ std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_ga
 {
     return decent::encrypt::get_public_el_gamal_key(el_gamal).to_string();
 }
+
+graphene::chain::memo_data::message_type get_message(const graphene::chain::memo_data& memo)
+{
+    return memo.message;
+}
+
+void set_message(graphene::chain::memo_data& memo, const graphene::chain::memo_data::message_type& msg)
+{
+    memo.message = msg;
+}
+
+struct memo_converter
+{
+    static PyObject* convert(const graphene::chain::memo_data::message_type& memo)
+    {
+        if(!memo.empty())
+            return PyByteArray_FromStringAndSize(memo.data(), memo.size());
+        Py_RETURN_NONE;
+    }
+
+    static void* convertible(PyObject* obj)
+    {
+        return obj == Py_None || PyByteArray_Check(obj) ? obj : nullptr;
+    }
+
+    static void construct(PyObject* obj, bp::converter::rvalue_from_python_stage1_data* data)
+    {
+        void* storage = ((boost::python::converter::rvalue_from_python_storage<graphene::chain::memo_data::message_type>*)data)->storage.bytes;
+        if(PyByteArray_Check(obj)) {
+            const char* memo = PyByteArray_AsString(obj);
+            new (storage)graphene::chain::memo_data::message_type(memo, memo + PyByteArray_Size(obj));
+        }
+        else
+            new (storage)graphene::chain::memo_data::message_type();
+
+        data->convertible = storage;
+    }
+};
 
 struct variant_converter
 {
@@ -110,6 +153,9 @@ void register_common_types()
     bp::to_python_converter<fc::variant, variant_converter>();
     bp::converter::registry::push_back(variant_converter::convertible, variant_converter::construct, bp::type_id<fc::variant>());
 
+    bp::to_python_converter<graphene::chain::memo_data::message_type, memo_converter>();
+    bp::converter::registry::push_back(memo_converter::convertible, memo_converter::construct, bp::type_id<graphene::chain::memo_data::message_type>());
+
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
     register_hash<fc::sha224>("SHA224");
@@ -124,6 +170,7 @@ void register_common_types()
     ;
 
     bp::class_<fc::time_point_sec>("TimePointSec", bp::init<>())
+        .def(bp::init<uint32_t>())
         .def("__repr__", &fc::time_point_sec::to_iso_string)
         .def("sec_since_epoch", &fc::time_point_sec::sec_since_epoch)
     ;
@@ -151,6 +198,8 @@ void register_common_types()
         .def("get_shared_secret", &graphene::chain::private_key_type::get_shared_secret)
         .def("sign_compact", &graphene::chain::private_key_type::sign_compact)
         .def("derive_el_gamal_key", derive_el_gamal_key)
+        .def("from_string", key_from_str)
+        .staticmethod("from_string")
         .def("generate", &graphene::chain::private_key_type::generate)
         .staticmethod("generate")
         .def("regenerate", &graphene::chain::private_key_type::regenerate)
@@ -211,18 +260,27 @@ void register_common_types()
     register_object_id<graphene::chain::message_id_type>("MessageId");
     register_object_id<graphene::chain::transaction_history_id_type>("TransactionHistoryId");
 
-    bp::class_<graphene::chain::operation>("Operation", bp::no_init)
-        .def("__repr__", object_repr<graphene::chain::operation>)
-    ;
-
-    bp::class_<graphene::chain::operation_result>("OperationResult", bp::no_init)
-        .def("__repr__", object_repr<graphene::chain::operation_result>)
+    bp::class_<graphene::chain::memo_data>("Memo", bp::init<>())
+        .def(bp::init<const std::string&, const graphene::chain::private_key_type&, const graphene::chain::public_key_type&, bp::optional<uint64_t>>())
+        .def("__repr__", object_repr<graphene::chain::memo_data>)
+        .def_readwrite("sender", &graphene::chain::memo_data::from)
+        .def_readwrite("receiver", &graphene::chain::memo_data::to)
+        .def_readwrite("nonce", &graphene::chain::memo_data::nonce)
+        .add_property("message", get_message, set_message)
+        .def("get_message", &graphene::chain::memo_data::get_message)
+        .def("encrypt_message", graphene::chain::memo_data::encrypt_message)
+        .staticmethod("encrypt_message")
+        .def("decrypt_message", graphene::chain::memo_data::decrypt_message)
+        .staticmethod("decrypt_message")
+        .def("generate_nonce", graphene::chain::memo_data::generate_nonce)
+        .staticmethod("generate_nonce")
     ;
 
     bp::class_<graphene::chain::transaction>("Transaction", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::transaction>)
         .def("digest", &graphene::chain::transaction::digest)
         .def("signature_digest", &graphene::chain::transaction::sig_digest)
+        .def("set_reference_block", &graphene::chain::transaction::set_reference_block)
         .def_readwrite("ref_block_num", &graphene::chain::transaction::ref_block_num)
         .def_readwrite("ref_block_prefix", &graphene::chain::transaction::ref_block_prefix)
         .def_readwrite("expiration", &graphene::chain::transaction::expiration)
@@ -292,6 +350,8 @@ void register_common_types()
         .def("__repr__", object_repr<graphene::chain::price>)
         .def_readwrite("base", &graphene::chain::price::base)
         .def_readwrite("quote", &graphene::chain::price::quote)
+        .def("unit_price", graphene::chain::price::unit_price)
+        .staticmethod("unit_price")
     ;
 }
 

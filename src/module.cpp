@@ -100,7 +100,7 @@ struct Wallet : public wa::WalletAPI
     wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
     graphene::chain::global_property_object get_global_properties() { return exec(&wa::wallet_api::get_global_properties).wait(); }
     graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return exec(&wa::wallet_api::get_dynamic_global_properties).wait(); }
-    bp::object get_block(uint32_t num) { return optional_value(exec(&wa::wallet_api::get_block, num).wait()); }
+    bp::object get_block(uint32_t num) { return encode_optional_value(exec(&wa::wallet_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return exec(&wa::wallet_api::head_block_time).wait(); }
 
     // account
@@ -183,6 +183,7 @@ BOOST_PYTHON_MODULE(dcore)
     dcore::register_asset();
     dcore::register_chain();
     dcore::register_nft();
+    dcore::register_operation();
 
     bp::class_<graphene::utilities::decent_path_finder, boost::noncopyable>("Path", bp::no_init)
         .def("instance", graphene::utilities::decent_path_finder::instance, bp::return_value_policy<bp::reference_existing_object>())

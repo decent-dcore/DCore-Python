@@ -5,6 +5,9 @@ MAINNET_ENDPOINT = 'wss://api.decent.ch'
 TESTNET_ENDPOINT = 'wss://testnet-socket.dcore.io'
 WALLET_FILE = Path.instance().home + '/wallet.json'
 
+CORE_ASSET_ID = AssetId(ObjectId(1,3,0))
+CORE_UNIT_PRICE = Price.unit_price(CORE_ASSET_ID)
+
 def _wallet(wallet_file, endpoint):
     w = Wallet()
     w.connect(wallet_file, endpoint)
