@@ -8,12 +8,11 @@ For Debian 10/Ubuntu 18.04 LTS or later, execute in console:
     sudo apt-get install apt-transport-https curl gnupg lsb-release software-properties-common
     curl https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://dl.bintray.com/decentfoundation/$(lsb_release -is | tr "[:upper:]" "[:lower:]") $(lsb_release -cs) libpbc"
-    sudo apt-get update
-    sudo apt-get install build-essential autotools-dev automake autoconf libtool make cmake g++ doxygen wget git libreadline-dev libcrypto++-dev libgmp-dev libpbc-dev libssl-dev libcurl4-openssl-dev libboost-all-dev zlib1g-dev
+    sudo apt-get install build-essential autotools-dev automake autoconf libtool make cmake g++ doxygen git libreadline-dev libcrypto++-dev libgmp-dev libpbc-dev libssl-dev libcurl4-openssl-dev libboost-all-dev zlib1g-dev
     mkdir ~/dev
 
     # Download and build JSON 3.7.0
-    wget -nv https://github.com/nlohmann/json/archive/v3.7.0.tar.gz
+    curl -LO https://github.com/nlohmann/json/archive/v3.7.0.tar.gz
     tar xf v3.7.0.tar.gz
     cd json-3.7.0
     cmake .
@@ -25,8 +24,17 @@ For Fedora 29 or later, execute in console:
 
     sudo dnf install curl
     sudo curl https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation -o /etc/pki/rpm-gpg/RPM-GPG-KEY-decentfoundation
-    sudo curl https://docs.decent.ch/assets/bintray-decentfoundation.repo -o /etc/yum.repos.d/bintray-decentfoundation.repo
-    sudo dnf install automake autoconf libtool make cmake gcc-c++ doxygen wget git readline-devel cryptopp-devel openssl-devel gmp-devel libpbc-devel libcurl-devel json-devel zlib-devel boost-devel boost-python3-devel python3-devel
+    sudo curl https://docs.decent.ch/assets/bintray-decentfoundation-fedora.repo -o /etc/yum.repos.d/bintray-decentfoundation.repo
+    sudo dnf install automake autoconf libtool make cmake gcc-c++ doxygen git readline-devel cryptopp-devel openssl-devel gmp-devel libpbc-devel libcurl-devel json-devel zlib-devel boost-devel boost-python3-devel python3-devel
+    mkdir ~/dev
+
+For CentOS 8, execute in console:
+
+    sudo dnf install curl
+    sudo curl https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation -o /etc/pki/rpm-gpg/RPM-GPG-KEY-decentfoundation
+    sudo curl https://docs.decent.ch/assets/bintray-decentfoundation-centos.repo -o /etc/yum.repos.d/bintray-decentfoundation.repo
+    sudo dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    sudo dnf install --enablerepo PowerTools automake autoconf libtool make cmake gcc-c++ doxygen git readline-devel cryptopp-devel openssl-devel gmp-devel libpbc-devel libcurl-devel json-devel zlib-devel boost-devel boost-python3-devel python3-devel
     mkdir ~/dev
 
 ### Installing prerequisites in MacOS
