@@ -107,6 +107,7 @@ struct Wallet : public wa::WalletAPI
     // general
     wa::wallet_about about() { return exec(&wa::wallet_api::about).wait(); }
     wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
+    graphene::chain::chain_property_object get_chain_properties() { return query(&wa::db_api::get_chain_properties).wait(); }
     graphene::chain::global_property_object get_global_properties() { return query(&wa::db_api::get_global_properties).wait(); }
     graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return query(&wa::db_api::get_dynamic_global_properties).wait(); }
     bp::object get_block(uint32_t num) { return encode_optional_value(query(&wa::db_api::get_block, num).wait()); }
@@ -270,6 +271,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("about", &dcore::Wallet::about)
         .def("list_my_accounts", &dcore::Wallet::list_my_accounts)
         .def("info", &dcore::Wallet::info)
+        .def("get_chain_properties", &dcore::Wallet::get_chain_properties)
         .def("get_global_properties", &dcore::Wallet::get_global_properties)
         .def("get_dynamic_global_properties", &dcore::Wallet::get_dynamic_global_properties)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))

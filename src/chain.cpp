@@ -1,5 +1,6 @@
 #include "module.hpp"
 #include <graphene/chain/global_property_object.hpp>
+#include <graphene/chain/chain_property_object.hpp>
 
 namespace dcore {
 
@@ -56,6 +57,19 @@ void register_chain()
         .def_readwrite("miner_pay_vesting_seconds", &graphene::chain::chain_parameters::miner_pay_vesting_seconds)
         .def_readwrite("max_predicate_opcode", &graphene::chain::chain_parameters::max_predicate_opcode)
         .def_readwrite("max_authority_depth", &graphene::chain::chain_parameters::max_authority_depth)
+    ;
+
+    bp::class_<graphene::chain::immutable_chain_parameters>("ChainImmutableParameters", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::immutable_chain_parameters>)
+        .def_readwrite("min_miner_count", &graphene::chain::immutable_chain_parameters::min_miner_count)
+        .def_readwrite("num_special_accounts", &graphene::chain::immutable_chain_parameters::num_special_accounts)
+        .def_readwrite("num_special_assets", &graphene::chain::immutable_chain_parameters::num_special_assets)
+    ;
+
+    bp::class_<object_wrapper<graphene::chain::chain_property_object>, std::shared_ptr<graphene::chain::chain_property_object>> chp("ChainProperties", bp::no_init);
+    object_wrapper<graphene::chain::chain_property_object>::wrap(chp)
+        .def_readwrite("chain_id", &graphene::chain::chain_property_object::chain_id)
+        .def_readwrite("immutable_parameters", &graphene::chain::chain_property_object::immutable_parameters)
     ;
 
     bp::class_<object_wrapper<graphene::chain::global_property_object>, std::shared_ptr<graphene::chain::global_property_object>> gp("GlobalProperties", bp::no_init);

@@ -63,6 +63,13 @@ std::string get_public_el_gamal_key(const decent::encrypt::DIntegerString &el_ga
     return decent::encrypt::get_public_el_gamal_key(el_gamal).to_string();
 }
 
+graphene::chain::signature_type sign_transaction(graphene::chain::signed_transaction& trx,
+                                                 const graphene::chain::private_key_type& key,
+                                                 const graphene::chain::chain_id_type& chain_id)
+{
+    return trx.sign(key, chain_id);
+}
+
 graphene::chain::memo_data::message_type get_message(const graphene::chain::memo_data& memo)
 {
     return memo.message;
@@ -278,12 +285,14 @@ void register_common_types()
 
     bp::class_<graphene::chain::transaction>("Transaction", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::transaction>)
+        .def("validate", &graphene::chain::transaction::validate)
         .def("digest", &graphene::chain::transaction::digest)
         .def("signature_digest", &graphene::chain::transaction::sig_digest)
         .def("set_reference_block", &graphene::chain::transaction::set_reference_block)
         .def_readwrite("ref_block_num", &graphene::chain::transaction::ref_block_num)
         .def_readwrite("ref_block_prefix", &graphene::chain::transaction::ref_block_prefix)
         .def_readwrite("expiration", &graphene::chain::transaction::expiration)
+        .add_property("id", &graphene::chain::transaction::id)
         .add_property("operations",
             encode_list<graphene::chain::transaction, std::vector<graphene::chain::operation>, &graphene::chain::transaction::operations>,
             decode_list<graphene::chain::transaction, std::vector<graphene::chain::operation>, &graphene::chain::transaction::operations>)
@@ -291,6 +300,7 @@ void register_common_types()
 
     bp::class_<graphene::chain::signed_transaction, bp::bases<graphene::chain::transaction>>("SignedTransaction", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::signed_transaction>)
+        .def("sign", sign_transaction)
         .add_property("signatures",
             encode_list<graphene::chain::signed_transaction, std::vector<graphene::chain::signature_type>, &graphene::chain::signed_transaction::signatures>,
             decode_list<graphene::chain::signed_transaction, std::vector<graphene::chain::signature_type>, &graphene::chain::signed_transaction::signatures>)
