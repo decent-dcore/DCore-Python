@@ -1,6 +1,11 @@
 Building DCore-Python
 ---------------------
 
+| CI | Status |
+| -- | ------ |
+| Travis | [![Build Status](https://travis-ci.com/decent-dcore/DCore-Python.svg?branch=master)](https://travis-ci.com/decent-dcore/DCore-Python) |
+| Appveyor | [![Build Status](https://ci.appveyor.com/api/projects/status/github/decent-dcore/DCore-Python?svg=true&branch=master)](https://ci.appveyor.com/project/decent-dcore/DCore-Python) |
+
 ### Installing prerequisites in Linux
 
 For Debian 10/Ubuntu 18.04 LTS or later, execute in console:
