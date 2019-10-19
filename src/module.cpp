@@ -5,6 +5,7 @@
 #include <fc/log/logger_config.hpp>
 
 namespace wa = graphene::wallet;
+namespace ch = graphene::chain;
 
 namespace dcore {
 
@@ -100,16 +101,16 @@ struct Wallet : public wa::WalletAPI
     std::string get_filename() { return fc::path_to_utf8(exec(&wa::wallet_api::get_wallet_filename).wait()); }
     bool import_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_key, account, key).wait(); }
     bool import_single_key(const std::string &account, const std::string &key) { return exec(&wa::wallet_api::import_single_key, account, key).wait(); }
-    std::string get_private_key(const graphene::chain::public_key_type &pubkey) { return exec(&wa::wallet_api::get_private_key, pubkey).wait(); }
+    std::string get_private_key(const ch::public_key_type &pubkey) { return exec(&wa::wallet_api::get_private_key, pubkey).wait(); }
     std::string dump_private_keys() { return object_repr(exec(&wa::wallet_api::dump_private_keys).wait()); }
     bp::list list_my_accounts() { return to_list(exec(&wa::wallet_api::list_my_accounts).wait()); }
 
     // general
     wa::wallet_about about() { return exec(&wa::wallet_api::about).wait(); }
     wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
-    graphene::chain::chain_property_object get_chain_properties() { return query(&wa::db_api::get_chain_properties).wait(); }
-    graphene::chain::global_property_object get_global_properties() { return query(&wa::db_api::get_global_properties).wait(); }
-    graphene::chain::dynamic_global_property_object get_dynamic_global_properties() { return query(&wa::db_api::get_dynamic_global_properties).wait(); }
+    ch::chain_property_object get_chain_properties() { return query(&wa::db_api::get_chain_properties).wait(); }
+    ch::global_property_object get_global_properties() { return query(&wa::db_api::get_global_properties).wait(); }
+    ch::dynamic_global_property_object get_dynamic_global_properties() { return query(&wa::db_api::get_dynamic_global_properties).wait(); }
     bp::object get_block(uint32_t num) { return encode_optional_value(query(&wa::db_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return query(&wa::db_api::head_block_time).wait(); }
 
@@ -118,65 +119,65 @@ struct Wallet : public wa::WalletAPI
     bp::object get_account(const std::string& name) { return encode_optional_value(query(&wa::db_api::get_account_by_name, name).wait()); }
     bp::dict lookup_accounts(const std::string& lowerbound, uint32_t limit) { return to_dict(query(&wa::db_api::lookup_accounts, lowerbound, limit).wait()); }
     bp::list search_accounts(const std::string& term, const std::string& order, graphene::db::object_id_type id, uint32_t limit) { return to_list(query(&wa::db_api::search_accounts, term, order, id, limit).wait()); }
-    bp::list get_accounts(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_accounts, vector_from_list<graphene::chain::account_id_type>(ids)).wait()); }
+    bp::list get_accounts(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_accounts, vector_from_list<ch::account_id_type>(ids)).wait()); }
     bp::list list_account_balances(const std::string& account) { return to_list(exec(&wa::wallet_api::list_account_balances, account).wait()); }
-    wa::signed_transaction_info create_account(const std::string &brainkey, const std::string &name, const std::string &registrar, bool broadcast)
+    ch::signed_transaction create_account(const std::string &brainkey, const std::string &name, const std::string &registrar, bool broadcast)
         { return exec(&wa::wallet_api::create_account_with_brain_key, brainkey, name, registrar, broadcast).wait(); }
-    wa::signed_transaction_info register_account(const std::string &name, const graphene::chain::public_key_type &owner, const graphene::chain::public_key_type &active, const graphene::chain::public_key_type &memo,
+    ch::signed_transaction register_account(const std::string &name, const ch::public_key_type &owner, const ch::public_key_type &active, const ch::public_key_type &memo,
         const std::string &registrar, bool broadcast) { return exec(&wa::wallet_api::register_account_with_keys, name, owner, active, memo, registrar, broadcast).wait(); }
-    wa::signed_transaction_info register_multisig_account(const std::string &name, const graphene::chain::authority &owner, const graphene::chain::authority &active, const graphene::chain::public_key_type &memo,
+    ch::signed_transaction register_multisig_account(const std::string &name, const ch::authority &owner, const ch::authority &active, const ch::public_key_type &memo,
         const std::string &registrar, bool broadcast) { return exec(&wa::wallet_api::register_multisig_account, name, owner, active, memo, registrar, broadcast).wait(); }
-    wa::signed_transaction_info update_account(const std::string &name, const graphene::chain::public_key_type &owner, const graphene::chain::public_key_type &active, const graphene::chain::public_key_type &memo,
+    ch::signed_transaction update_account(const std::string &name, const ch::public_key_type &owner, const ch::public_key_type &active, const ch::public_key_type &memo,
         bool broadcast) { return exec(&wa::wallet_api::update_account_keys, name, static_cast<std::string>(owner), static_cast<std::string>(active), static_cast<std::string>(memo), broadcast).wait(); }
-    wa::signed_transaction_info update_multisig_account(const std::string &name, const graphene::chain::authority &owner, const graphene::chain::authority &active, const graphene::chain::public_key_type &memo,
+    ch::signed_transaction update_multisig_account(const std::string &name, const ch::authority &owner, const ch::authority &active, const ch::public_key_type &memo,
         bool broadcast) { return exec(&wa::wallet_api::update_account_keys_to_multisig, name, owner, active, memo, broadcast).wait(); }
-    wa::signed_transaction_info transfer(const std::string &from, const std::string &to, double amount, const std::string &symbol, const std::string &memo, bool broadcast)
+    ch::signed_transaction transfer(const std::string &from, const std::string &to, double amount, const std::string &symbol, const std::string &memo, bool broadcast)
         { return exec(&wa::wallet_api::transfer, from, to, fc::to_string(amount), symbol, memo, broadcast).wait(); }
 
     // asset
     bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_assets, lowerbound, limit).wait()); }
-    bp::list get_assets(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_assets, vector_from_list<graphene::chain::asset_id_type>(ids)).wait()); }
-    wa::signed_transaction_info create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds,
+    bp::list get_assets(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_assets, vector_from_list<ch::asset_id_type>(ids)).wait()); }
+    ch::signed_transaction create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds,
        bool broadcast) { return exec(&wa::wallet_api::create_monitored_asset, issuer, symbol, precision, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
-    wa::signed_transaction_info update_monitored_asset(const std::string &symbol, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
+    ch::signed_transaction update_monitored_asset(const std::string &symbol, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
        { return exec(&wa::wallet_api::update_monitored_asset, symbol, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
-    wa::signed_transaction_info create_user_issued_asset(const std::string& issuer, const std::string& symbol, uint8_t precision, const std::string& description, uint64_t max_supply, const graphene::chain::price& core_exchange_rate,
+    ch::signed_transaction create_user_issued_asset(const std::string& issuer, const std::string& symbol, uint8_t precision, const std::string& description, uint64_t max_supply, const ch::price& core_exchange_rate,
        bool exchangeable, bool fixed_max_supply, bool broadcast) { return exec(&wa::wallet_api::create_user_issued_asset, issuer, symbol, precision, description, max_supply, core_exchange_rate, exchangeable, fixed_max_supply, broadcast).wait(); }
-    wa::signed_transaction_info update_user_issued_asset(const std::string& symbol, const std::string& issuer, const std::string& description, uint64_t max_supply, const graphene::chain::price& core_exchange_rate,
+    ch::signed_transaction update_user_issued_asset(const std::string& symbol, const std::string& issuer, const std::string& description, uint64_t max_supply, const ch::price& core_exchange_rate,
        bool exchangeable, bool broadcast) { return exec(&wa::wallet_api::update_user_issued_asset, symbol, issuer, description, max_supply, core_exchange_rate, exchangeable, broadcast).wait(); }
-    wa::signed_transaction_info issue_asset(const std::string& account, double amount, const std::string& symbol, const std::string& memo, bool broadcast)
+    ch::signed_transaction issue_asset(const std::string& account, double amount, const std::string& symbol, const std::string& memo, bool broadcast)
        { return exec(&wa::wallet_api::issue_asset, account, fc::to_string(amount), symbol, memo, broadcast).wait(); }
-    wa::signed_transaction_info fund_asset_pools(const std::string& account, double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
+    ch::signed_transaction fund_asset_pools(const std::string& account, double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
        { return exec(&wa::wallet_api::fund_asset_pools, account, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
-    wa::signed_transaction_info reserve_asset(const std::string& account, double amount, const std::string& symbol, bool broadcast)
+    ch::signed_transaction reserve_asset(const std::string& account, double amount, const std::string& symbol, bool broadcast)
        { return exec(&wa::wallet_api::reserve_asset, account, fc::to_string(amount), symbol, broadcast).wait(); }
-    wa::signed_transaction_info claim_fees(double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
+    ch::signed_transaction claim_fees(double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
        { return exec(&wa::wallet_api::claim_fees, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
-    wa::signed_transaction_info publish_asset_feed(const std::string& account, const std::string& symbol, const graphene::chain::price_feed& feed, bool broadcast)
+    ch::signed_transaction publish_asset_feed(const std::string& account, const std::string& symbol, const ch::price_feed& feed, bool broadcast)
        { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
 
     // non fungible token
     bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
-    bp::list get_non_fungible_tokens(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_non_fungible_tokens, vector_from_list<graphene::chain::non_fungible_token_id_type>(ids)).wait()); }
-    bp::list list_non_fungible_token_data(const graphene::chain::non_fungible_token_id_type& nft) { return to_list(query(&wa::db_api::list_non_fungible_token_data, nft).wait()); }
-    bp::dict get_non_fungible_token_summary(const graphene::chain::account_id_type& account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
+    bp::list get_non_fungible_tokens(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_non_fungible_tokens, vector_from_list<ch::non_fungible_token_id_type>(ids)).wait()); }
+    bp::list list_non_fungible_token_data(const ch::non_fungible_token_id_type& nft) { return to_list(query(&wa::db_api::list_non_fungible_token_data, nft).wait()); }
+    bp::dict get_non_fungible_token_summary(const ch::account_id_type& account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
     bp::list get_non_fungible_token_balances(const string& account, const bp::list& nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
-    wa::signed_transaction_info create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
-        bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<graphene::chain::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
-    wa::signed_transaction_info update_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, uint32_t max_supply, bool fixed_max_supply, bool broadcast)
+    ch::signed_transaction create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
+        bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<ch::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
+    ch::signed_transaction update_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, uint32_t max_supply, bool fixed_max_supply, bool broadcast)
         { return exec(&wa::wallet_api::update_non_fungible_token, issuer, symbol, description, max_supply, fixed_max_supply, broadcast).wait(); }
-    wa::signed_transaction_info issue_non_fungible_token(const std::string& account, const std::string& symbol, const bp::list& data, const std::string& memo, bool broadcast)
+    ch::signed_transaction issue_non_fungible_token(const std::string& account, const std::string& symbol, const bp::list& data, const std::string& memo, bool broadcast)
         { return exec(&wa::wallet_api::issue_non_fungible_token, account, symbol, vector_from_list<fc::variant>(data), memo, broadcast).wait(); }
-    wa::signed_transaction_info transfer_non_fungible_token_data(const std::string& account, const graphene::chain::non_fungible_token_data_id_type& nft_data_id, const std::string& memo, bool broadcast)
+    ch::signed_transaction transfer_non_fungible_token_data(const std::string& account, const ch::non_fungible_token_data_id_type& nft_data_id, const std::string& memo, bool broadcast)
         { return exec(&wa::wallet_api::transfer_non_fungible_token_data, account, nft_data_id, memo, broadcast).wait(); }
-    wa::signed_transaction_info burn_non_fungible_token_data(const graphene::chain::non_fungible_token_data_id_type& nft_data_id, bool broadcast)
+    ch::signed_transaction burn_non_fungible_token_data(const ch::non_fungible_token_data_id_type& nft_data_id, bool broadcast)
         { return exec(&wa::wallet_api::burn_non_fungible_token_data, nft_data_id, broadcast).wait(); }
-    wa::signed_transaction_info update_non_fungible_token_data(const std::string& modifier, const graphene::chain::non_fungible_token_data_id_type& nft_data_id, const bp::list& data, bool broadcast)
+    ch::signed_transaction update_non_fungible_token_data(const std::string& modifier, const ch::non_fungible_token_data_id_type& nft_data_id, const bp::list& data, bool broadcast)
         { return exec(&wa::wallet_api::update_non_fungible_token_data, modifier, nft_data_id, vector_from_list<std::pair<std::string, fc::variant>>(data), broadcast).wait(); }
 
     // network broadcast
-    void broadcast_transaction(const graphene::chain::signed_transaction& trx) { broadcast(&wa::net_api::broadcast_transaction, trx).wait(); }
-    void broadcast_block(const graphene::chain::signed_block& block) { broadcast(&wa::net_api::broadcast_block, block).wait(); }
+    void broadcast_transaction(const ch::signed_transaction& trx) { broadcast(&wa::net_api::broadcast_transaction, trx).wait(); }
+    void broadcast_block(const ch::signed_block& block) { broadcast(&wa::net_api::broadcast_block, block).wait(); }
 };
 
 } // dcore
@@ -240,17 +241,12 @@ BOOST_PYTHON_MODULE(dcore)
         .def_readonly("next_maintenance_time", &wa::wallet_info::next_maintenance_time)
         .def_readonly("chain_id", &wa::wallet_info::chain_id)
         .def_readonly("participation", &wa::wallet_info::participation)
-        .add_property("active_miners", dcore::encode_list<wa::wallet_info, std::vector<graphene::chain::miner_id_type>, &wa::wallet_info::active_miners>)
+        .add_property("active_miners", dcore::encode_list<wa::wallet_info, std::vector<ch::miner_id_type>, &wa::wallet_info::active_miners>)
     ;
 
-    bp::class_<wa::extended_asset, bp::bases<graphene::chain::asset>>("BalanceEx", bp::no_init)
+    bp::class_<wa::extended_asset, bp::bases<ch::asset>>("BalanceEx", bp::no_init)
         .def("__repr__", dcore::object_repr<wa::extended_asset>)
         .def_readonly("pretty_amount", &wa::extended_asset::pretty_amount)
-    ;
-
-    bp::class_<wa::signed_transaction_info, bp::bases<graphene::chain::signed_transaction>>("SignedTransactionEx", bp::no_init)
-        .def("__repr__", dcore::object_repr<wa::signed_transaction_info>)
-        .def_readonly("transaction_id", &wa::signed_transaction_info::transaction_id)
     ;
 
     bp::class_<dcore::Wallet, boost::noncopyable>("Wallet", bp::init<>())
