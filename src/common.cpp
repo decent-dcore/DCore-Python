@@ -187,15 +187,9 @@ void register_common_types()
         .def("__len__", &fc::ecc::compact_signature::size)
     ;
 
-    bp::class_<fc::ecc::public_key>("PublicKey_Raw", bp::no_init)
-        .def("__repr__", object_repr<fc::ecc::public_key>)
-    ;
-
     bp::class_<graphene::chain::public_key_type>("PublicKey", bp::init<bp::optional<std::string>>())
-        .def(bp::init<const fc::ecc::public_key>())
         .def("__repr__", object_repr<graphene::chain::public_key_type>)
         .def("__str__", &graphene::chain::public_key_type::operator std::string)
-        .def("raw", &graphene::chain::public_key_type::operator fc::ecc::public_key)
     ;
 
     bp::class_<graphene::chain::private_key_type>("PrivateKey", bp::no_init)
