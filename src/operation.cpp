@@ -4,10 +4,10 @@
 
 namespace dcore {
 
-template<typename T>
-bp::object decode_operation(const graphene::chain::operation& op)
+template<typename V, typename T>
+bp::object decode_static_variant(const V& v)
 {
-    return op.which() == graphene::chain::operation::tag<T>::value ? bp::object(op.get<T>()) : bp::object();
+    return v.which() == V::template tag<T>::value ? bp::object(v.template get<T>()) : bp::object();
 }
 
 bp::list encode_proposed_operations(const graphene::chain::proposal_create_operation &op)
@@ -57,22 +57,45 @@ void register_operation()
         .def(bp::init<const graphene::chain::transfer_operation&>())
         .def(bp::init<const graphene::chain::account_create_operation&>())
         .def(bp::init<const graphene::chain::account_update_operation&>())
+        .def(bp::init<const graphene::chain::asset_create_operation&>())
+        .def(bp::init<const graphene::chain::asset_issue_operation&>())
+        .def(bp::init<const graphene::chain::asset_publish_feed_operation&>())
+        .def(bp::init<const graphene::chain::miner_create_operation&>())
+        .def(bp::init<const graphene::chain::miner_update_operation&>())
+        .def(bp::init<const graphene::chain::miner_update_global_parameters_operation&>())
+        .def(bp::init<const graphene::chain::proposal_create_operation&>())
+        .def(bp::init<const graphene::chain::proposal_update_operation&>())
+        .def(bp::init<const graphene::chain::proposal_delete_operation&>())
+        .def(bp::init<const graphene::chain::withdraw_permission_create_operation&>())
+        .def(bp::init<const graphene::chain::withdraw_permission_update_operation&>())
+        .def(bp::init<const graphene::chain::withdraw_permission_claim_operation&>())
+        .def(bp::init<const graphene::chain::withdraw_permission_delete_operation&>())
+        .def(bp::init<const graphene::chain::vesting_balance_create_operation&>())
+        .def(bp::init<const graphene::chain::vesting_balance_withdraw_operation&>())
         .def(bp::init<const graphene::chain::custom_operation&>())
+        .def(bp::init<const graphene::chain::assert_operation&>())
         .def("__repr__", object_repr<graphene::chain::operation>)
         .def("validate", graphene::chain::operation_validate)
-        .add_property("transfer", decode_operation<graphene::chain::transfer_operation>)
-        .add_property("account_create", decode_operation<graphene::chain::account_create_operation>)
-        .add_property("account_update", decode_operation<graphene::chain::account_update_operation>)
-        .add_property("asset_create", decode_operation<graphene::chain::asset_create_operation>)
-        .add_property("asset_issue", decode_operation<graphene::chain::asset_issue_operation>)
-        .add_property("asset_publish_feed", decode_operation<graphene::chain::asset_publish_feed_operation>)
-        .add_property("miner_create", decode_operation<graphene::chain::miner_create_operation>)
-        .add_property("miner_update", decode_operation<graphene::chain::miner_update_operation>)
-        .add_property("update_global_parameters", decode_operation<graphene::chain::miner_update_global_parameters_operation>)
-        .add_property("proposal_create", decode_operation<graphene::chain::proposal_create_operation>)
-        .add_property("proposal_update", decode_operation<graphene::chain::proposal_update_operation>)
-        .add_property("proposal_delete", decode_operation<graphene::chain::proposal_delete_operation>)
-        .add_property("custom", decode_operation<graphene::chain::custom_operation>)
+        .add_property("transfer", decode_static_variant<graphene::chain::operation, graphene::chain::transfer_operation>)
+        .add_property("account_create", decode_static_variant<graphene::chain::operation, graphene::chain::account_create_operation>)
+        .add_property("account_update", decode_static_variant<graphene::chain::operation, graphene::chain::account_update_operation>)
+        .add_property("asset_create", decode_static_variant<graphene::chain::operation, graphene::chain::asset_create_operation>)
+        .add_property("asset_issue", decode_static_variant<graphene::chain::operation, graphene::chain::asset_issue_operation>)
+        .add_property("asset_publish_feed", decode_static_variant<graphene::chain::operation, graphene::chain::asset_publish_feed_operation>)
+        .add_property("miner_create", decode_static_variant<graphene::chain::operation, graphene::chain::miner_create_operation>)
+        .add_property("miner_update", decode_static_variant<graphene::chain::operation, graphene::chain::miner_update_operation>)
+        .add_property("update_global_parameters", decode_static_variant<graphene::chain::operation, graphene::chain::miner_update_global_parameters_operation>)
+        .add_property("proposal_create", decode_static_variant<graphene::chain::operation, graphene::chain::proposal_create_operation>)
+        .add_property("proposal_update", decode_static_variant<graphene::chain::operation, graphene::chain::proposal_update_operation>)
+        .add_property("proposal_delete", decode_static_variant<graphene::chain::operation, graphene::chain::proposal_delete_operation>)
+        .add_property("withdraw_permission_create", decode_static_variant<graphene::chain::operation, graphene::chain::withdraw_permission_create_operation>)
+        .add_property("withdraw_permission_update", decode_static_variant<graphene::chain::operation, graphene::chain::withdraw_permission_update_operation>)
+        .add_property("withdraw_permission_claim", decode_static_variant<graphene::chain::operation, graphene::chain::withdraw_permission_claim_operation>)
+        .add_property("withdraw_permission_delete", decode_static_variant<graphene::chain::operation, graphene::chain::withdraw_permission_delete_operation>)
+        .add_property("vesting_balance_create", decode_static_variant<graphene::chain::operation, graphene::chain::vesting_balance_create_operation>)
+        .add_property("vesting_balance_withdraw", decode_static_variant<graphene::chain::operation, graphene::chain::vesting_balance_withdraw_operation>)
+        .add_property("custom", decode_static_variant<graphene::chain::operation, graphene::chain::custom_operation>)
+        .add_property("assert", decode_static_variant<graphene::chain::operation, graphene::chain::assert_operation>)
     ;
 
     bp::class_<graphene::chain::operation_result>("Result", bp::no_init)
@@ -218,38 +241,164 @@ void register_operation()
         .def_readwrite("proposal", &graphene::chain::proposal_delete_operation::proposal)
     ;
 
-    bp::scope custom = bp::class_<graphene::chain::custom_operation>("Custom", bp::init<>())
-        .def("__repr__", object_repr<graphene::chain::custom_operation>)
-        .def_readwrite("fee", &graphene::chain::custom_operation::fee)
-        .def_readwrite("payer", &graphene::chain::custom_operation::payer)
-        .add_property("required_auths",
-            encode_set<graphene::chain::custom_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::custom_operation::required_auths>,
-            decode_set<graphene::chain::custom_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::custom_operation::required_auths>)
-        .def_readwrite("id", &graphene::chain::custom_operation::id)
-        .add_property("data", get_data<graphene::chain::custom_operation>, set_data<graphene::chain::custom_operation>)
-        .add_property("message_payload", get_messaging_payload, &graphene::chain::custom_operation::set_messaging_payload)
+    bp::class_<graphene::chain::withdraw_permission_create_operation>("CreateWithdrawPermission", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::withdraw_permission_create_operation>)
+        .def_readwrite("fee", &graphene::chain::withdraw_permission_create_operation::fee)
+        .def_readwrite("from_account", &graphene::chain::withdraw_permission_create_operation::withdraw_from_account)
+        .def_readwrite("authorized_account", &graphene::chain::withdraw_permission_create_operation::authorized_account)
+        .def_readwrite("limit", &graphene::chain::withdraw_permission_create_operation::withdrawal_limit)
+        .def_readwrite("period_sec", &graphene::chain::withdraw_permission_create_operation::withdrawal_period_sec)
+        .def_readwrite("periods_until_expiration", &graphene::chain::withdraw_permission_create_operation::periods_until_expiration)
+        .def_readwrite("period_start_time", &graphene::chain::withdraw_permission_create_operation::period_start_time)
+   ;
+
+    bp::class_<graphene::chain::withdraw_permission_update_operation>("UpdateWithdrawPermission", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::withdraw_permission_update_operation>)
+        .def_readwrite("fee", &graphene::chain::withdraw_permission_update_operation::fee)
+        .def_readwrite("from_account", &graphene::chain::withdraw_permission_update_operation::withdraw_from_account)
+        .def_readwrite("authorized_account", &graphene::chain::withdraw_permission_update_operation::authorized_account)
+        .def_readwrite("permission", &graphene::chain::withdraw_permission_update_operation::permission_to_update)
+        .def_readwrite("limit", &graphene::chain::withdraw_permission_update_operation::withdrawal_limit)
+        .def_readwrite("period_sec", &graphene::chain::withdraw_permission_update_operation::withdrawal_period_sec)
+        .def_readwrite("periods_until_expiration", &graphene::chain::withdraw_permission_update_operation::periods_until_expiration)
+        .def_readwrite("period_start_time", &graphene::chain::withdraw_permission_update_operation::period_start_time)
     ;
 
-    custom.attr("SUBTYPE_MESSAGING") = static_cast<uint16_t>(graphene::chain::custom_operation::custom_operation_subtype_messaging);
-
-    bp::scope msg = bp::class_<graphene::chain::message_payload>("MessagePayload", bp::init<>())
-        .def("__repr__", object_repr<graphene::chain::message_payload>)
-        .def_readwrite("sender", &graphene::chain::message_payload::from)
-        .def_readwrite("key", &graphene::chain::message_payload::pub_from)
-        .add_property("receivers",
-            encode_list<graphene::chain::message_payload, std::vector<graphene::chain::message_payload_receivers_data>, &graphene::chain::message_payload::receivers_data>,
-            decode_list<graphene::chain::message_payload, std::vector<graphene::chain::message_payload_receivers_data>, &graphene::chain::message_payload::receivers_data>)
+    bp::class_<graphene::chain::withdraw_permission_claim_operation>("ClaimWithdrawPermission", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::withdraw_permission_claim_operation>)
+        .def_readwrite("fee", &graphene::chain::withdraw_permission_claim_operation::fee)
+        .def_readwrite("from_account", &graphene::chain::withdraw_permission_claim_operation::withdraw_from_account)
+        .def_readwrite("to_account", &graphene::chain::withdraw_permission_claim_operation::withdraw_to_account)
+        .def_readwrite("permission", &graphene::chain::withdraw_permission_claim_operation::withdraw_permission)
+        .def_readwrite("amount", &graphene::chain::withdraw_permission_claim_operation::amount_to_withdraw)
+        .add_property("memo",
+            decode_optional_type<graphene::chain::withdraw_permission_claim_operation, graphene::chain::memo_data, &graphene::chain::withdraw_permission_claim_operation::memo>,
+            encode_optional_type<graphene::chain::withdraw_permission_claim_operation, graphene::chain::memo_data, &graphene::chain::withdraw_permission_claim_operation::memo>)
     ;
 
-    bp::class_<graphene::chain::message_payload_receivers_data>("Data", bp::init<>())
-        .def(bp::init<const std::string&, const graphene::chain::private_key_type&, const graphene::chain::public_key_type&, graphene::chain::account_id_type, bp::optional<uint64_t>>())
-        .def("__repr__", object_repr<graphene::chain::message_payload_receivers_data>)
-        .def_readwrite("receiver", &graphene::chain::message_payload_receivers_data::to)
-        .def_readwrite("key", &graphene::chain::message_payload_receivers_data::pub_to)
-        .def_readwrite("nonce", &graphene::chain::message_payload_receivers_data::nonce)
-        .add_property("data", get_data<graphene::chain::message_payload_receivers_data>, set_data<graphene::chain::message_payload_receivers_data>)
-        .def("get_message", &graphene::chain::message_payload_receivers_data::get_message)
+    bp::class_<graphene::chain::withdraw_permission_delete_operation>("DeleteWithdrawPermission", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::withdraw_permission_delete_operation>)
+        .def_readwrite("fee", &graphene::chain::withdraw_permission_delete_operation::fee)
+        .def_readwrite("from_account", &graphene::chain::withdraw_permission_delete_operation::withdraw_from_account)
+        .def_readwrite("authorized_account", &graphene::chain::withdraw_permission_delete_operation::authorized_account)
+        .def_readwrite("permission", &graphene::chain::withdraw_permission_delete_operation::withdrawal_permission)
     ;
+
+    {
+        bp::scope vesting_balance = bp::class_<graphene::chain::vesting_balance_create_operation>("CreateVestingBalance", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::vesting_balance_create_operation>)
+            .def_readwrite("fee", &graphene::chain::vesting_balance_create_operation::fee)
+            .def_readwrite("creator", &graphene::chain::vesting_balance_create_operation::creator)
+            .def_readwrite("owner", &graphene::chain::vesting_balance_create_operation::owner)
+            .def_readwrite("amount", &graphene::chain::vesting_balance_create_operation::amount)
+            .def_readwrite("policy", &graphene::chain::vesting_balance_create_operation::policy)
+        ;
+
+        bp::scope policy = bp::class_<graphene::chain::vesting_policy_initializer>("Policy", bp::no_init)
+            .def(bp::init<const graphene::chain::linear_vesting_policy_initializer&>())
+            .def(bp::init<const graphene::chain::cdd_vesting_policy_initializer&>())
+            .def("__repr__", object_repr<graphene::chain::vesting_policy_initializer>)
+            .add_property("linear", decode_static_variant<graphene::chain::vesting_policy_initializer, graphene::chain::linear_vesting_policy_initializer>)
+            .add_property("cdd", decode_static_variant<graphene::chain::vesting_policy_initializer, graphene::chain::cdd_vesting_policy_initializer>)
+        ;
+
+        bp::class_<graphene::chain::linear_vesting_policy_initializer>("Linear", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::linear_vesting_policy_initializer>)
+            .def_readwrite("begin", &graphene::chain::linear_vesting_policy_initializer::begin_timestamp)
+            .def_readwrite("vesting_cliff_seconds", &graphene::chain::linear_vesting_policy_initializer::vesting_cliff_seconds)
+            .def_readwrite("vesting_duration_seconds", &graphene::chain::linear_vesting_policy_initializer::vesting_duration_seconds)
+        ;
+
+        bp::class_<graphene::chain::cdd_vesting_policy_initializer>("Cdd", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::cdd_vesting_policy_initializer>)
+            .def_readwrite("start_claim", &graphene::chain::cdd_vesting_policy_initializer::start_claim)
+            .def_readwrite("vesting_seconds", &graphene::chain::cdd_vesting_policy_initializer::vesting_seconds)
+        ;
+    }
+
+    bp::class_<graphene::chain::vesting_balance_withdraw_operation>("WithdrawVestingBalance", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::vesting_balance_withdraw_operation>)
+        .def_readwrite("fee", &graphene::chain::vesting_balance_withdraw_operation::fee)
+        .def_readwrite("vesting_balance", &graphene::chain::vesting_balance_withdraw_operation::vesting_balance)
+        .def_readwrite("owner", &graphene::chain::vesting_balance_withdraw_operation::owner)
+        .def_readwrite("amount", &graphene::chain::vesting_balance_withdraw_operation::amount)
+    ;
+
+    {
+        bp::scope custom = bp::class_<graphene::chain::custom_operation>("Custom", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::custom_operation>)
+            .def_readwrite("fee", &graphene::chain::custom_operation::fee)
+            .def_readwrite("payer", &graphene::chain::custom_operation::payer)
+            .add_property("required_auths",
+                encode_set<graphene::chain::custom_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::custom_operation::required_auths>,
+                decode_set<graphene::chain::custom_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::custom_operation::required_auths>)
+            .def_readwrite("id", &graphene::chain::custom_operation::id)
+            .add_property("data", get_data<graphene::chain::custom_operation>, set_data<graphene::chain::custom_operation>)
+            .add_property("message_payload", get_messaging_payload, &graphene::chain::custom_operation::set_messaging_payload)
+        ;
+
+        custom.attr("SUBTYPE_MESSAGING") = static_cast<uint16_t>(graphene::chain::custom_operation::custom_operation_subtype_messaging);
+
+        bp::scope msg = bp::class_<graphene::chain::message_payload>("MessagePayload", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::message_payload>)
+            .def_readwrite("sender", &graphene::chain::message_payload::from)
+            .def_readwrite("key", &graphene::chain::message_payload::pub_from)
+            .add_property("receivers",
+                encode_list<graphene::chain::message_payload, std::vector<graphene::chain::message_payload_receivers_data>, &graphene::chain::message_payload::receivers_data>,
+                decode_list<graphene::chain::message_payload, std::vector<graphene::chain::message_payload_receivers_data>, &graphene::chain::message_payload::receivers_data>)
+        ;
+
+        bp::class_<graphene::chain::message_payload_receivers_data>("Data", bp::init<>())
+            .def(bp::init<const std::string&, const graphene::chain::private_key_type&, const graphene::chain::public_key_type&, graphene::chain::account_id_type, bp::optional<uint64_t>>())
+            .def("__repr__", object_repr<graphene::chain::message_payload_receivers_data>)
+            .def_readwrite("receiver", &graphene::chain::message_payload_receivers_data::to)
+            .def_readwrite("key", &graphene::chain::message_payload_receivers_data::pub_to)
+            .def_readwrite("nonce", &graphene::chain::message_payload_receivers_data::nonce)
+            .add_property("data", get_data<graphene::chain::message_payload_receivers_data>, set_data<graphene::chain::message_payload_receivers_data>)
+            .def("get_message", &graphene::chain::message_payload_receivers_data::get_message)
+        ;
+    }
+
+    {
+        bp::scope assrt = bp::class_<graphene::chain::assert_operation>("Assert", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::assert_operation>)
+            .def_readwrite("fee", &graphene::chain::assert_operation::fee)
+            .def_readwrite("payer", &graphene::chain::assert_operation::fee_paying_account)
+            .add_property("required_auths",
+                encode_set<graphene::chain::assert_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::assert_operation::required_auths>,
+                decode_set<graphene::chain::assert_operation, boost::container::flat_set<graphene::chain::account_id_type>, &graphene::chain::assert_operation::required_auths>)
+            .add_property("predicates",
+                encode_list<graphene::chain::assert_operation, std::vector<graphene::chain::predicate>, &graphene::chain::assert_operation::predicates>,
+                decode_list<graphene::chain::assert_operation, std::vector<graphene::chain::predicate>, &graphene::chain::assert_operation::predicates>)
+        ;
+
+        bp::scope predicate = bp::class_<graphene::chain::predicate>("Predicate", bp::no_init)
+            .def(bp::init<const graphene::chain::account_name_eq_lit_predicate&>())
+            .def(bp::init<const graphene::chain::asset_symbol_eq_lit_predicate&>())
+            .def(bp::init<const graphene::chain::block_id_predicate&>())
+            .def("__repr__", object_repr<graphene::chain::predicate>)
+            .add_property("linear", decode_static_variant<graphene::chain::predicate, graphene::chain::account_name_eq_lit_predicate>)
+            .add_property("cdd", decode_static_variant<graphene::chain::predicate, graphene::chain::asset_symbol_eq_lit_predicate>)
+            .add_property("cdd", decode_static_variant<graphene::chain::predicate, graphene::chain::block_id_predicate>)
+        ;
+
+        bp::class_<graphene::chain::account_name_eq_lit_predicate>("AccountNameEquals", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::account_name_eq_lit_predicate>)
+            .def_readwrite("account", &graphene::chain::account_name_eq_lit_predicate::account_id)
+            .def_readwrite("name", &graphene::chain::account_name_eq_lit_predicate::name)
+        ;
+
+        bp::class_<graphene::chain::asset_symbol_eq_lit_predicate>("AssetNameEquals", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::asset_symbol_eq_lit_predicate>)
+            .def_readwrite("asset", &graphene::chain::asset_symbol_eq_lit_predicate::asset_id)
+            .def_readwrite("symbol", &graphene::chain::asset_symbol_eq_lit_predicate::symbol)
+        ;
+
+        bp::class_<graphene::chain::block_id_predicate>("BlockIdEquals", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::block_id_predicate>)
+            .def_readwrite("id", &graphene::chain::block_id_predicate::id)
+        ;
+    }
 }
 
 } // dcore
