@@ -74,6 +74,11 @@ void register_operation()
         .def(bp::init<const graphene::chain::vesting_balance_withdraw_operation&>())
         .def(bp::init<const graphene::chain::custom_operation&>())
         .def(bp::init<const graphene::chain::assert_operation&>())
+        .def(bp::init<const graphene::chain::non_fungible_token_create_definition_operation&>())
+        .def(bp::init<const graphene::chain::non_fungible_token_update_definition_operation&>())
+        .def(bp::init<const graphene::chain::non_fungible_token_issue_operation&>())
+        .def(bp::init<const graphene::chain::non_fungible_token_transfer_operation&>())
+        .def(bp::init<const graphene::chain::non_fungible_token_update_data_operation&>())
         .def("__repr__", object_repr<graphene::chain::operation>)
         .def("validate", graphene::chain::operation_validate)
         .add_property("transfer", decode_static_variant<graphene::chain::operation, graphene::chain::transfer_operation>)
@@ -96,6 +101,11 @@ void register_operation()
         .add_property("vesting_balance_withdraw", decode_static_variant<graphene::chain::operation, graphene::chain::vesting_balance_withdraw_operation>)
         .add_property("custom", decode_static_variant<graphene::chain::operation, graphene::chain::custom_operation>)
         .add_property("assert", decode_static_variant<graphene::chain::operation, graphene::chain::assert_operation>)
+        .add_property("non_fungible_token_create", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_create_definition_operation>)
+        .add_property("non_fungible_token_update", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_update_definition_operation>)
+        .add_property("non_fungible_token_issue", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_issue_operation>)
+        .add_property("non_fungible_token_transfer", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_transfer_operation>)
+        .add_property("non_fungible_token_data_update", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_update_data_operation>)
     ;
 
     bp::class_<graphene::chain::operation_result>("Result", bp::no_init)
@@ -399,6 +409,60 @@ void register_operation()
             .def_readwrite("id", &graphene::chain::block_id_predicate::id)
         ;
     }
+
+    bp::class_<graphene::chain::non_fungible_token_create_definition_operation>("CreateNonFungibleToken", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::non_fungible_token_create_definition_operation>)
+        .def_readwrite("fee", &graphene::chain::non_fungible_token_create_definition_operation::fee)
+        .def_readwrite("symbol", &graphene::chain::non_fungible_token_create_definition_operation::symbol)
+        .def_readwrite("options", &graphene::chain::non_fungible_token_create_definition_operation::options)
+        .add_property("definitions",
+            encode_list<graphene::chain::non_fungible_token_create_definition_operation, graphene::chain::non_fungible_token_data_definitions, &graphene::chain::non_fungible_token_create_definition_operation::definitions>,
+            decode_list<graphene::chain::non_fungible_token_create_definition_operation, graphene::chain::non_fungible_token_data_definitions, &graphene::chain::non_fungible_token_create_definition_operation::definitions>)
+        .def_readwrite("transferable", &graphene::chain::non_fungible_token_create_definition_operation::transferable)
+    ;
+
+    bp::class_<graphene::chain::non_fungible_token_update_definition_operation>("UpdateNonFungibleToken", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::non_fungible_token_update_definition_operation>)
+        .def_readwrite("fee", &graphene::chain::non_fungible_token_update_definition_operation::fee)
+        .def_readwrite("issuer", &graphene::chain::non_fungible_token_update_definition_operation::current_issuer)
+        .def_readwrite("non_fungible_token", &graphene::chain::non_fungible_token_update_definition_operation::nft_id)
+        .def_readwrite("options", &graphene::chain::non_fungible_token_update_definition_operation::options)
+    ;
+
+    bp::class_<graphene::chain::non_fungible_token_issue_operation>("IssueNonFungibleToken", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::non_fungible_token_issue_operation>)
+        .def_readwrite("fee", &graphene::chain::non_fungible_token_issue_operation::fee)
+        .def_readwrite("issuer", &graphene::chain::non_fungible_token_issue_operation::issuer)
+        .def_readwrite("receiver", &graphene::chain::non_fungible_token_issue_operation::to)
+        .def_readwrite("non_fungible_token", &graphene::chain::non_fungible_token_issue_operation::nft_id)
+        .add_property("data",
+            encode_list<graphene::chain::non_fungible_token_issue_operation, fc::variants, &graphene::chain::non_fungible_token_issue_operation::data>,
+            decode_list<graphene::chain::non_fungible_token_issue_operation, fc::variants, &graphene::chain::non_fungible_token_issue_operation::data>)
+        .add_property("memo",
+            decode_optional_type<graphene::chain::non_fungible_token_issue_operation, graphene::chain::memo_data, &graphene::chain::non_fungible_token_issue_operation::memo>,
+            encode_optional_type<graphene::chain::non_fungible_token_issue_operation, graphene::chain::memo_data, &graphene::chain::non_fungible_token_issue_operation::memo>)
+    ;
+
+    bp::class_<graphene::chain::non_fungible_token_transfer_operation>("TransferNonFungibleToken", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::non_fungible_token_transfer_operation>)
+        .def_readwrite("fee", &graphene::chain::non_fungible_token_transfer_operation::fee)
+        .def_readwrite("sender", &graphene::chain::non_fungible_token_transfer_operation::from)
+        .def_readwrite("receiver", &graphene::chain::non_fungible_token_transfer_operation::to)
+        .def_readwrite("non_fungible_token_data", &graphene::chain::non_fungible_token_transfer_operation::nft_data_id)
+        .add_property("memo",
+            decode_optional_type<graphene::chain::non_fungible_token_transfer_operation, graphene::chain::memo_data, &graphene::chain::non_fungible_token_transfer_operation::memo>,
+            encode_optional_type<graphene::chain::non_fungible_token_transfer_operation, graphene::chain::memo_data, &graphene::chain::non_fungible_token_transfer_operation::memo>)
+    ;
+
+    bp::class_<graphene::chain::non_fungible_token_update_data_operation>("UpadateNonFungibleTokenData", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::non_fungible_token_update_data_operation>)
+        .def_readwrite("fee", &graphene::chain::non_fungible_token_update_data_operation::fee)
+        .def_readwrite("modifier", &graphene::chain::non_fungible_token_update_data_operation::modifier)
+        .def_readwrite("non_fungible_token_data", &graphene::chain::non_fungible_token_update_data_operation::nft_data_id)
+        .add_property("data",
+            encode_list<graphene::chain::non_fungible_token_update_data_operation, std::vector<std::pair<std::string, fc::variant>>, &graphene::chain::non_fungible_token_update_data_operation::data>,
+            decode_list<graphene::chain::non_fungible_token_update_data_operation, std::vector<std::pair<std::string, fc::variant>>, &graphene::chain::non_fungible_token_update_data_operation::data>)
+    ;
 }
 
 } // dcore

@@ -27,6 +27,10 @@ if(Python_USE_STATIC_LIBS)
    target_compile_definitions( dcore PRIVATE BOOST_PYTHON_STATIC_LIB )
 endif()
 
+if(MSVC)
+   set_source_files_properties( operation.cpp PROPERTIES COMPILE_FLAGS "/bigobj" )
+endif(MSVC)
+
 set_target_properties( dcore PROPERTIES PREFIX "" )
 
 if( APPLE )
@@ -37,7 +41,7 @@ endif()
 
 # to install into system use CMAKE_INSTALL_PREFIX=
 if( CMAKE_INSTALL_PREFIX )
-  if( WIN32 )
+   if( WIN32 )
       set(LIBRARY_DESTINATION_PATH Lib)
       set(MODULE_DESTINATION_PATH Lib/site-packages)
    elseif( APPLE )
