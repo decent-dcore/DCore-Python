@@ -89,7 +89,7 @@ In order to build and install DCore-Python, execute in console:
 
     mkdir -p ~/dev/DCore-Python-build
     cd ~/dev/DCore-Python-build
-    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=0 -DPYTHON_VERSION=37 ~/dev/DCore-Python
+    cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DPYTHON_VERSION=37 ~/dev/DCore-Python
     cmake --build . --target all -- -j -l 3.0
     cmake --build . --target install
 
@@ -109,4 +109,4 @@ You can use CMake generator to create a Visual Studio 2017 project files and per
     set DOXYGEN=C:\Doxygen
     set PERL=C:\Strawberry\perl
     set VCPKG=C:\Projects\vcpkg
-    cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG%\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%DOXYGEN%;%PERL% -DBOOST_ROOT=%BOOST% -DBOOST_LIBRARYDIR=%BOOST%\lib64-msvc-14.1 -DBUILD_GUI=0 -DPYTHON_VERSION=37 -G "Visual Studio 15 2017 Win64" .
+    cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG%\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=%DOXYGEN%;%PERL% -DBOOST_ROOT=%BOOST% -DBOOST_LIBRARYDIR=%BOOST%\lib64-msvc-14.1 -DPYTHON_VERSION=37 -G "Visual Studio 15 2017 Win64" .
