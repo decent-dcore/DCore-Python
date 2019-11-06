@@ -20,7 +20,7 @@ class TokenSummaryModel(QtCore.QAbstractTableModel):
             if section == 0:
                 return 'Symbol'
             elif section == 1:
-                return 'Count'
+                return 'Balance'
         return None
 
     def data(self, index, role):
@@ -45,6 +45,9 @@ class TokenSummaryModel(QtCore.QAbstractTableModel):
         self.tokens.append((token, count))
         self.endInsertRows()
 
+    def get_token(self, row):
+        return self.tokens[row][0] if row < self.rowCount() else None
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, wallet):
         QtWidgets.QMainWindow.__init__(self)
@@ -57,25 +60,52 @@ class MainWindow(QtWidgets.QMainWindow):
             self.accounts.addItem(account.name)
             self.accounts.setItemData(self.accounts.count() - 1, account.get_id())
         self.accounts.activated[int].connect(self.load_summary)
-        self.accounts.lineEdit().editingFinished.connect(lambda: self.load_summary(self.accounts.currentIndex()))
+        self.accounts.lineEdit().editingFinished.connect(self.load_summary)
 
         t = self.addToolBar('Accounts')
         t.addWidget(QtWidgets.QLabel('Account:'))
         t.addWidget(self.accounts)
 
         self.token_summary_model = TokenSummaryModel(self)
-        self.token_summary = QtWidgets.QTableView(self)
+        self.token_summary = QtWidgets.QTableView()
         self.token_summary.setModel(self.token_summary_model)
-        self.token_summary.setFocus()
-        self.setCentralWidget(self.token_summary)
+        self.token_summary.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
+        self.token_summary.selectionModel().currentRowChanged.connect(lambda current: self.load_info(current.row()))
 
-        self.load_summary(self.accounts.currentIndex())
+        self.token_info = QtWidgets.QLabel()
 
-    def load_summary(self, index):
-        if index == -1:
+        self.central_widget = QtWidgets.QSplitter(self)
+        self.central_widget.addWidget(self.token_summary)
+        self.central_widget.addWidget(self.token_info)
+        self.setCentralWidget(self.central_widget)
+        self.statusBar().show()
+
+        index = self.accounts.currentIndex()
+        if index != -1:
+            self.load_summary(index)
+            self.token_summary.selectRow(0)
+
+    def get_account_id(self, name):
+        account = self.wallet.get_account(name)
+        if account is None:
+            self.statusBar().showMessage('Account {0} does not exist.'.format(name), 5000)
+            return None
+
+        return account.get_id()
+
+    def load_info(self, row):
+        tokens = self.wallet.get_non_fungible_tokens([self.token_summary_model.get_token(row).get_id()]) if row != -1 else None
+        if tokens is None:
+            self.token_info.clear()
             return
 
-        account_id = self.accounts.currentData()
+        self.token_info.setText(tokens[0].symbol)
+
+    def load_summary(self, index = -1):
+        account_id = self.get_account_id(self.accounts.currentText()) if index == -1 else self.accounts.itemData(index)
+        if account_id is None:
+            return
+
         self.token_summary_model.clear_tokens()
 
         try:
@@ -83,7 +113,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 tokens = self.wallet.get_non_fungible_tokens([id])
                 self.token_summary_model.add_token(tokens[0], count)
         except DCore.Exception as e:
-            QtWidgets.QMessageBox.critical(self, 'Load Summary', str(e))
+            self.statusBar().showMessage(str(e), 5000)
 
 #d = DCore.NonFungibleTokenDataValue('abc', 123)
 #print(d)
