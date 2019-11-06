@@ -7,7 +7,7 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\Projects\\CMakeBuilds\\${name}",
+      "buildRoot": "C:\\Projects\\CMakeBuilds\\DCore-Python\\${name}",
       "installRoot": "C:\\Projects\\DCore-Python",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
@@ -42,7 +42,7 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\Projects\\CMakeBuilds\\${name}",
+      "buildRoot": "C:\\Projects\\CMakeBuilds\\DCore-Python\\${name}",
       "installRoot": "C:\\Projects\\DCore-Python\\RelWithDebInfo",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
@@ -77,7 +77,7 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\Projects\\CMakeBuilds\\${name}",
+      "buildRoot": "C:\\Projects\\CMakeBuilds\\DCore-Python\\${name}",
       "installRoot": "C:\\Projects\\DCore-Python\\MinSizeRel",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
@@ -112,7 +112,7 @@
       "inheritEnvironments": [
         "msvc_x64_x64"
       ],
-      "buildRoot": "C:\\Projects\\CMakeBuilds\\${name}",
+      "buildRoot": "C:\\Projects\\CMakeBuilds\\DCore-Python\\${name}",
       "installRoot": "C:\\Projects\\DCore-Python\\Debug",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
