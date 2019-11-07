@@ -106,7 +106,7 @@ struct Wallet : public wa::WalletAPI
     bp::list list_my_accounts() { return to_list(exec(&wa::wallet_api::list_my_accounts).wait()); }
 
     // general
-    wa::wallet_about about() { return exec(&wa::wallet_api::about).wait(); }
+    decent::about_info about() { return query(&wa::db_api::about).wait(); }
     wa::wallet_info info() { return exec(&wa::wallet_api::info).wait(); }
     ch::chain_property_object get_chain_properties() { return query(&wa::db_api::get_chain_properties).wait(); }
     ch::global_property_object get_global_properties() { return query(&wa::db_api::get_global_properties).wait(); }
@@ -193,6 +193,7 @@ BOOST_PYTHON_MODULE(dcore)
     fc::configure_logging(fc::logging_config());
     bp::def("configure_logging", dcore::configure_logging);
     bp::def("default_logging", dcore::default_logging);
+    bp::def("about", decent::get_about_info);
 
     dcore::register_common_types();
     dcore::register_account();
@@ -216,21 +217,10 @@ BOOST_PYTHON_MODULE(dcore)
     bp::class_<decent::about_info>("About", bp::no_init)
         .def("__repr__", dcore::object_repr<decent::about_info>)
         .def_readonly("version", &decent::about_info::version)
-        .def_readonly("graphene_revision", &decent::about_info::graphene_revision)
-        .def_readonly("graphene_revision_age", &decent::about_info::graphene_revision_age)
-        .def_readonly("fc_revision", &decent::about_info::fc_revision)
-        .def_readonly("fc_revision_age", &decent::about_info::fc_revision_age)
-        .def_readonly("compile_date", &decent::about_info::compile_date)
         .def_readonly("boost_version", &decent::about_info::boost_version)
         .def_readonly("openssl_version", &decent::about_info::openssl_version)
         .def_readonly("cryptopp_version", &decent::about_info::cryptopp_version)
         .def_readonly("build", &decent::about_info::build)
-    ;
-
-    bp::class_<wa::wallet_about>("AboutFull", bp::no_init)
-        .def("__repr__", dcore::object_repr<wa::wallet_about>)
-        .def_readonly("daemon", &wa::wallet_about::daemon_info)
-        .def_readonly("wallet", &wa::wallet_about::wallet_info)
     ;
 
     bp::class_<wa::wallet_info>("Info", bp::no_init)
