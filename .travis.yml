@@ -29,6 +29,14 @@ matrix:
           - /usr/local/Cellar/cryptopp
           - $HOME/Library/Caches/Homebrew
 
+    - os: osx
+      osx_image: xcode11.2
+      compiler: clang
+      cache:
+        directories:
+          - /usr/local/Cellar/cryptopp
+          - $HOME/Library/Caches/Homebrew
+
 addons:
   apt:
     sources:
@@ -57,7 +65,7 @@ before_install:
       brew link --force readline;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      test -d $HOME/json/include || (wget -nv https://github.com/nlohmann/json/archive/v3.7.0.tar.gz && tar xf v3.7.0.tar.gz && cd json-3.7.0 && cmake -DCMAKE_INSTALL_PREFIX=$HOME/json . && make -j$(nproc) install);
+      test -d $HOME/json/include || (wget -nv https://github.com/nlohmann/json/archive/v3.7.1.tar.gz && tar xf v3.7.1.tar.gz && cd json-3.7.1 && cmake -DCMAKE_INSTALL_PREFIX=$HOME/json . && make -j$(nproc) install);
     fi
 
 script:
