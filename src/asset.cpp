@@ -50,8 +50,8 @@ void register_asset()
             decode_safe_type<graphene::chain::asset_options, int64_t, &graphene::chain::asset_options::max_supply>,
             encode_safe_type<graphene::chain::asset_options, int64_t, &graphene::chain::asset_options::max_supply>)
         .def_readwrite("core_exchange_rate", &graphene::chain::asset_options::core_exchange_rate)
-        .def_readwrite("is_exchangeable", &graphene::chain::asset_options::is_exchangeable)
-        .add_property("is_fixed_max_supply",
+        .def_readwrite("exchangeable", &graphene::chain::asset_options::is_exchangeable)
+        .add_property("fixed_max_supply",
             decode_extension_type<graphene::chain::asset_options::fixed_max_supply_struct, bool, &graphene::chain::asset_options::fixed_max_supply_struct::is_fixed_max_supply>,
             encode_extension_type<graphene::chain::asset_options::fixed_max_supply_struct, bool, &graphene::chain::asset_options::fixed_max_supply_struct::is_fixed_max_supply>)
     ;

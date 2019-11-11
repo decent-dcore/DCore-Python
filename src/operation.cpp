@@ -109,8 +109,14 @@ void register_operation()
         .def(bp::init<const graphene::chain::proof_of_custody_operation&>())
         .def(bp::init<const graphene::chain::deliver_keys_operation&>())
         .def(bp::init<const graphene::chain::content_cancellation_operation&>())
+        .def(bp::init<const graphene::chain::asset_fund_pools_operation&>())
+        .def(bp::init<const graphene::chain::asset_reserve_operation&>())
+        .def(bp::init<const graphene::chain::asset_claim_fees_operation&>())
+        .def(bp::init<const graphene::chain::update_user_issued_asset_operation&>())
+        .def(bp::init<const graphene::chain::update_monitored_asset_operation&>())
         .def(bp::init<const graphene::chain::ready_to_publish_operation&>())
         .def(bp::init<const graphene::chain::transfer_operation&>())
+        .def(bp::init<const graphene::chain::update_user_issued_asset_advanced_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_create_definition_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_update_definition_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_issue_operation&>())
@@ -143,8 +149,14 @@ void register_operation()
         .add_property("proof_of_custody", decode_static_variant<graphene::chain::operation, graphene::chain::proof_of_custody_operation>)
         .add_property("deliver_keys", decode_static_variant<graphene::chain::operation, graphene::chain::deliver_keys_operation>)
         .add_property("content_cancellation", decode_static_variant<graphene::chain::operation, graphene::chain::content_cancellation_operation>)
+        .add_property("asset_fund_pools", decode_static_variant<graphene::chain::operation, graphene::chain::asset_fund_pools_operation>)
+        .add_property("asset_reserve", decode_static_variant<graphene::chain::operation, graphene::chain::asset_reserve_operation>)
+        .add_property("asset_claim_fees", decode_static_variant<graphene::chain::operation, graphene::chain::asset_claim_fees_operation>)
+        .add_property("update_user_issued_asset", decode_static_variant<graphene::chain::operation, graphene::chain::update_user_issued_asset_operation>)
+        .add_property("update_monitored_asset", decode_static_variant<graphene::chain::operation, graphene::chain::update_monitored_asset_operation>)
         .add_property("ready_to_publish", decode_static_variant<graphene::chain::operation, graphene::chain::ready_to_publish_operation>)
         .add_property("transfer", decode_static_variant<graphene::chain::operation, graphene::chain::transfer_operation>)
+        .add_property("update_user_issued_asset_advanced", decode_static_variant<graphene::chain::operation, graphene::chain::update_user_issued_asset_advanced_operation>)
         .add_property("non_fungible_token_create", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_create_definition_operation>)
         .add_property("non_fungible_token_update", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_update_definition_operation>)
         .add_property("non_fungible_token_issue", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_issue_operation>)
@@ -563,6 +575,53 @@ void register_operation()
         .def_readwrite("uri", &graphene::chain::content_cancellation_operation::URI)
     ;
 
+    bp::class_<graphene::chain::asset_fund_pools_operation>("FundAssetPools", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::asset_fund_pools_operation>)
+        .def_readwrite("fee", &graphene::chain::asset_fund_pools_operation::fee)
+        .def_readwrite("sender", &graphene::chain::asset_fund_pools_operation::from_account)
+        .def_readwrite("user_asset", &graphene::chain::asset_fund_pools_operation::uia_asset)
+        .def_readwrite("core_asset", &graphene::chain::asset_fund_pools_operation::dct_asset)
+    ;
+
+    bp::class_<graphene::chain::asset_reserve_operation>("ReserveAsset", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::asset_reserve_operation>)
+        .def_readwrite("fee", &graphene::chain::asset_reserve_operation::fee)
+        .def_readwrite("payer", &graphene::chain::asset_reserve_operation::payer)
+        .def_readwrite("amount", &graphene::chain::asset_reserve_operation::amount_to_reserve)
+    ;
+
+    bp::class_<graphene::chain::asset_claim_fees_operation>("ClaimAssetFees", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::asset_claim_fees_operation>)
+        .def_readwrite("fee", &graphene::chain::asset_claim_fees_operation::fee)
+        .def_readwrite("issuer", &graphene::chain::asset_claim_fees_operation::issuer)
+        .def_readwrite("user_asset", &graphene::chain::asset_claim_fees_operation::uia_asset)
+        .def_readwrite("core_asset", &graphene::chain::asset_claim_fees_operation::dct_asset)
+    ;
+
+    bp::class_<graphene::chain::update_user_issued_asset_operation>("UpdateAsset", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::update_user_issued_asset_operation>)
+        .def_readwrite("fee", &graphene::chain::update_user_issued_asset_operation::fee)
+        .def_readwrite("payer", &graphene::chain::update_user_issued_asset_operation::issuer)
+        .def_readwrite("asset", &graphene::chain::update_user_issued_asset_operation::asset_to_update)
+        .def_readwrite("description", &graphene::chain::update_user_issued_asset_operation::new_description)
+        .add_property("issuer",
+            decode_optional_type<graphene::chain::update_user_issued_asset_operation, graphene::chain::account_id_type, &graphene::chain::update_user_issued_asset_operation::new_issuer>,
+            encode_optional_type<graphene::chain::update_user_issued_asset_operation, graphene::chain::account_id_type, &graphene::chain::update_user_issued_asset_operation::new_issuer>)
+        .def_readwrite("max_supply", &graphene::chain::update_user_issued_asset_operation::max_supply)
+        .def_readwrite("core_exchange_rate", &graphene::chain::update_user_issued_asset_operation::core_exchange_rate)
+        .def_readwrite("exchangeable", &graphene::chain::update_user_issued_asset_operation::is_exchangeable)
+    ;
+
+    bp::class_<graphene::chain::update_monitored_asset_operation>("UpdateMonitoredAsset", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::update_monitored_asset_operation>)
+        .def_readwrite("fee", &graphene::chain::update_monitored_asset_operation::fee)
+        .def_readwrite("payer", &graphene::chain::update_monitored_asset_operation::issuer)
+        .def_readwrite("asset", &graphene::chain::update_monitored_asset_operation::asset_to_update)
+        .def_readwrite("description", &graphene::chain::update_monitored_asset_operation::new_description)
+        .def_readwrite("feed_lifetime_sec", &graphene::chain::update_monitored_asset_operation::new_feed_lifetime_sec)
+        .def_readwrite("minimum_feeds", &graphene::chain::update_monitored_asset_operation::new_minimum_feeds)
+    ;
+
     bp::class_<graphene::chain::ready_to_publish_operation>("ReadyToPublish", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::ready_to_publish_operation>)
         .def_readwrite("fee", &graphene::chain::ready_to_publish_operation::fee)
@@ -585,6 +644,15 @@ void register_operation()
         .add_property("memo",
             decode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>,
             encode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>)
+    ;
+
+    bp::class_<graphene::chain::update_user_issued_asset_advanced_operation>("UpdateAssetAdvanced", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::update_user_issued_asset_advanced_operation>)
+        .def_readwrite("fee", &graphene::chain::update_user_issued_asset_advanced_operation::fee)
+        .def_readwrite("payer", &graphene::chain::update_user_issued_asset_advanced_operation::issuer)
+        .def_readwrite("asset", &graphene::chain::update_user_issued_asset_advanced_operation::asset_to_update)
+        .def_readwrite("precision", &graphene::chain::update_user_issued_asset_advanced_operation::new_precision)
+        .def_readwrite("fixed_max_supply", &graphene::chain::update_user_issued_asset_advanced_operation::set_fixed_max_supply)
     ;
 
     bp::class_<graphene::chain::non_fungible_token_create_definition_operation>("CreateNonFungibleToken", bp::init<>())
