@@ -58,7 +58,6 @@ void decode_dict(T& obj, const bp::dict &d)
 {
     bp::list l = d.keys();
     auto len = bp::len(l);
-    (obj.*container).reserve(len);
     while(len--) {
         bp::object k = l[len];
         bp::extract<typename Container::mapped_type> v(d.get(k));
