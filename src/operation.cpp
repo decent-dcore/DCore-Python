@@ -84,7 +84,6 @@ struct array_converter
 void register_operation()
 {
     bp::scope op = bp::class_<graphene::chain::operation>("Operation", bp::no_init)
-        .def(bp::init<const graphene::chain::transfer_operation&>())
         .def(bp::init<const graphene::chain::account_create_operation&>())
         .def(bp::init<const graphene::chain::account_update_operation&>())
         .def(bp::init<const graphene::chain::asset_create_operation&>())
@@ -106,7 +105,12 @@ void register_operation()
         .def(bp::init<const graphene::chain::assert_operation&>())
         .def(bp::init<const graphene::chain::content_submit_operation&>())
         .def(bp::init<const graphene::chain::request_to_buy_operation&>())
+        .def(bp::init<const graphene::chain::leave_rating_and_comment_operation&>())
+        .def(bp::init<const graphene::chain::proof_of_custody_operation&>())
+        .def(bp::init<const graphene::chain::deliver_keys_operation&>())
         .def(bp::init<const graphene::chain::content_cancellation_operation&>())
+        .def(bp::init<const graphene::chain::ready_to_publish_operation&>())
+        .def(bp::init<const graphene::chain::transfer_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_create_definition_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_update_definition_operation&>())
         .def(bp::init<const graphene::chain::non_fungible_token_issue_operation&>())
@@ -114,7 +118,6 @@ void register_operation()
         .def(bp::init<const graphene::chain::non_fungible_token_update_data_operation&>())
         .def("__repr__", object_repr<graphene::chain::operation>)
         .def("validate", graphene::chain::operation_validate)
-        .add_property("transfer", decode_static_variant<graphene::chain::operation, graphene::chain::transfer_operation>)
         .add_property("account_create", decode_static_variant<graphene::chain::operation, graphene::chain::account_create_operation>)
         .add_property("account_update", decode_static_variant<graphene::chain::operation, graphene::chain::account_update_operation>)
         .add_property("asset_create", decode_static_variant<graphene::chain::operation, graphene::chain::asset_create_operation>)
@@ -136,7 +139,12 @@ void register_operation()
         .add_property("assert", decode_static_variant<graphene::chain::operation, graphene::chain::assert_operation>)
         .add_property("content_submit", decode_static_variant<graphene::chain::operation, graphene::chain::content_submit_operation>)
         .add_property("request_to_buy", decode_static_variant<graphene::chain::operation, graphene::chain::request_to_buy_operation>)
+        .add_property("leave_rating_and_comment", decode_static_variant<graphene::chain::operation, graphene::chain::leave_rating_and_comment_operation>)
+        .add_property("proof_of_custody", decode_static_variant<graphene::chain::operation, graphene::chain::proof_of_custody_operation>)
+        .add_property("deliver_keys", decode_static_variant<graphene::chain::operation, graphene::chain::deliver_keys_operation>)
         .add_property("content_cancellation", decode_static_variant<graphene::chain::operation, graphene::chain::content_cancellation_operation>)
+        .add_property("ready_to_publish", decode_static_variant<graphene::chain::operation, graphene::chain::ready_to_publish_operation>)
+        .add_property("transfer", decode_static_variant<graphene::chain::operation, graphene::chain::transfer_operation>)
         .add_property("non_fungible_token_create", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_create_definition_operation>)
         .add_property("non_fungible_token_update", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_update_definition_operation>)
         .add_property("non_fungible_token_issue", decode_static_variant<graphene::chain::operation, graphene::chain::non_fungible_token_issue_operation>)
@@ -146,17 +154,6 @@ void register_operation()
 
     bp::class_<graphene::chain::operation_result>("Result", bp::no_init)
         .def("__repr__", object_repr<graphene::chain::operation_result>)
-    ;
-
-    bp::class_<graphene::chain::transfer_operation>("Transfer", bp::init<>())
-        .def("__repr__", object_repr<graphene::chain::transfer_operation>)
-        .def_readwrite("fee", &graphene::chain::transfer_operation::fee)
-        .def_readwrite("sender", &graphene::chain::transfer_operation::from)
-        .def_readwrite("receiver", &graphene::chain::transfer_operation::to)
-        .def_readwrite("amount", &graphene::chain::transfer_operation::amount)
-        .add_property("memo",
-            decode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>,
-            encode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>)
     ;
 
     bp::class_<graphene::chain::account_create_operation>("CreateAccount", bp::init<>())
@@ -479,11 +476,13 @@ void register_operation()
         ;
 
         bp::class_<graphene::chain::regional_price>("RegionalPrice", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::regional_price>)
             .def_readwrite("region", &graphene::chain::regional_price::region)
             .def_readwrite("price", &graphene::chain::regional_price::price)
         ;
 
         bp::class_<graphene::chain::custody_data_type>("CustodyData", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::custody_data_type>)
             .def_readwrite("num", &graphene::chain::custody_data_type::n)
             .def_readwrite("u_seed", &graphene::chain::custody_data_type::u_seed)
             .def_readwrite("public_key", &graphene::chain::custody_data_type::pubKey)
@@ -500,11 +499,92 @@ void register_operation()
         .def_readwrite("public_key", &graphene::chain::request_to_buy_operation::pubKey)
     ;
 
+    bp::class_<graphene::chain::leave_rating_and_comment_operation>("LeaveRatingAndComment", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::leave_rating_and_comment_operation>)
+        .def_readwrite("fee", &graphene::chain::leave_rating_and_comment_operation::fee)
+        .def_readwrite("uri", &graphene::chain::leave_rating_and_comment_operation::URI)
+        .def_readwrite("consumer", &graphene::chain::leave_rating_and_comment_operation::consumer)
+        .def_readwrite("rating", &graphene::chain::leave_rating_and_comment_operation::rating)
+        .def_readwrite("comment", &graphene::chain::leave_rating_and_comment_operation::comment)
+    ;
+
+    {
+        bp::scope proof = bp::class_<graphene::chain::proof_of_custody_operation>("ProofOfCustody", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::proof_of_custody_operation>)
+            .def_readwrite("fee", &graphene::chain::proof_of_custody_operation::fee)
+            .def_readwrite("seeder", &graphene::chain::proof_of_custody_operation::seeder)
+            .def_readwrite("uri", &graphene::chain::proof_of_custody_operation::URI)
+            .add_property("proof",
+                decode_optional_type<graphene::chain::proof_of_custody_operation, graphene::chain::custody_proof_type, &graphene::chain::proof_of_custody_operation::proof>,
+                encode_optional_type<graphene::chain::proof_of_custody_operation, graphene::chain::custody_proof_type, &graphene::chain::proof_of_custody_operation::proof>)
+        ;
+
+        bp::class_<graphene::chain::custody_proof_type>("Proof", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::custody_proof_type>)
+            .def_readwrite("reference_block", &graphene::chain::custody_proof_type::reference_block)
+            .def_readwrite("seed", &graphene::chain::custody_proof_type::seed)
+            .add_property("mus",
+                encode_list<graphene::chain::custody_proof_type, std::vector<std::string>, &graphene::chain::custody_proof_type::mus>,
+                decode_list<graphene::chain::custody_proof_type, std::vector<std::string>, &graphene::chain::custody_proof_type::mus>)
+            .def_readwrite("sigma", &graphene::chain::custody_proof_type::sigma)
+        ;
+    }
+
+    {
+        bp::scope keys = bp::class_<graphene::chain::deliver_keys_operation>("DeliverKeys", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::deliver_keys_operation>)
+            .def_readwrite("fee", &graphene::chain::deliver_keys_operation::fee)
+            .def_readwrite("seeder", &graphene::chain::deliver_keys_operation::seeder)
+            .def_readwrite("buying", &graphene::chain::deliver_keys_operation::buying)
+            .def_readwrite("proof", &graphene::chain::deliver_keys_operation::proof)
+            .def_readwrite("key", &graphene::chain::deliver_keys_operation::key)
+        ;
+
+        bp::class_<graphene::chain::delivery_proof_type>("Proof", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::delivery_proof_type>)
+            .def_readwrite("G1", &graphene::chain::delivery_proof_type::G1)
+            .def_readwrite("G2", &graphene::chain::delivery_proof_type::G2)
+            .def_readwrite("G3", &graphene::chain::delivery_proof_type::G3)
+            .def_readwrite("s", &graphene::chain::delivery_proof_type::s)
+            .def_readwrite("r", &graphene::chain::delivery_proof_type::r)
+        ;
+
+        bp::class_<graphene::chain::ciphertext_type>("Key", bp::init<>())
+            .def("__repr__", object_repr<graphene::chain::ciphertext_type>)
+            .def_readwrite("C1", &graphene::chain::ciphertext_type::C1)
+            .def_readwrite("D1", &graphene::chain::ciphertext_type::D1)
+        ;
+    }
+
     bp::class_<graphene::chain::content_cancellation_operation>("CancelContent", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::content_cancellation_operation>)
         .def_readwrite("fee", &graphene::chain::content_cancellation_operation::fee)
         .def_readwrite("author", &graphene::chain::content_cancellation_operation::author)
         .def_readwrite("uri", &graphene::chain::content_cancellation_operation::URI)
+    ;
+
+    bp::class_<graphene::chain::ready_to_publish_operation>("ReadyToPublish", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::ready_to_publish_operation>)
+        .def_readwrite("fee", &graphene::chain::ready_to_publish_operation::fee)
+        .def_readwrite("seeder", &graphene::chain::ready_to_publish_operation::seeder)
+        .def_readwrite("public_key", &graphene::chain::ready_to_publish_operation::pubKey)
+        .def_readwrite("space", &graphene::chain::ready_to_publish_operation::space)
+        .def_readwrite("price", &graphene::chain::ready_to_publish_operation::price_per_MByte)
+        .def_readwrite("ipfs_id", &graphene::chain::ready_to_publish_operation::ipfs_ID)
+        .add_property("region_code",
+            decode_optional_type<graphene::chain::ready_to_publish_operation, std::string, &graphene::chain::ready_to_publish_operation::region_code>,
+            encode_optional_type<graphene::chain::ready_to_publish_operation, std::string, &graphene::chain::ready_to_publish_operation::region_code>)
+    ;
+
+    bp::class_<graphene::chain::transfer_operation>("Transfer", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::transfer_operation>)
+        .def_readwrite("fee", &graphene::chain::transfer_operation::fee)
+        .def_readwrite("sender", &graphene::chain::transfer_operation::from)
+        .def_readwrite("receiver", &graphene::chain::transfer_operation::to)
+        .def_readwrite("amount", &graphene::chain::transfer_operation::amount)
+        .add_property("memo",
+            decode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>,
+            encode_optional_type<graphene::chain::transfer_operation, graphene::chain::memo_data, &graphene::chain::transfer_operation::memo>)
     ;
 
     bp::class_<graphene::chain::non_fungible_token_create_definition_operation>("CreateNonFungibleToken", bp::init<>())
