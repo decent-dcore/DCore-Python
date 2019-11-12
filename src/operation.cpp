@@ -108,6 +108,12 @@ void register_operation()
         .def(bp::init<const graphene::chain::leave_rating_and_comment_operation&>())
         .def(bp::init<const graphene::chain::proof_of_custody_operation&>())
         .def(bp::init<const graphene::chain::deliver_keys_operation&>())
+        .def(bp::init<const graphene::chain::subscribe_operation&>())
+        .def(bp::init<const graphene::chain::subscribe_by_author_operation&>())
+        .def(bp::init<const graphene::chain::automatic_renewal_of_subscription_operation&>())
+        .def(bp::init<const graphene::chain::report_stats_operation&>())
+        .def(bp::init<const graphene::chain::set_publishing_manager_operation&>())
+        .def(bp::init<const graphene::chain::set_publishing_right_operation&>())
         .def(bp::init<const graphene::chain::content_cancellation_operation&>())
         .def(bp::init<const graphene::chain::asset_fund_pools_operation&>())
         .def(bp::init<const graphene::chain::asset_reserve_operation&>())
@@ -148,6 +154,12 @@ void register_operation()
         .add_property("leave_rating_and_comment", decode_static_variant<graphene::chain::operation, graphene::chain::leave_rating_and_comment_operation>)
         .add_property("proof_of_custody", decode_static_variant<graphene::chain::operation, graphene::chain::proof_of_custody_operation>)
         .add_property("deliver_keys", decode_static_variant<graphene::chain::operation, graphene::chain::deliver_keys_operation>)
+        .add_property("subscribe_to_author", decode_static_variant<graphene::chain::operation, graphene::chain::subscribe_operation>)
+        .add_property("subscribe_by_author", decode_static_variant<graphene::chain::operation, graphene::chain::subscribe_by_author_operation>)
+        .add_property("automatic_renewal_of_subscription", decode_static_variant<graphene::chain::operation, graphene::chain::automatic_renewal_of_subscription_operation>)
+        .add_property("report_statistics", decode_static_variant<graphene::chain::operation, graphene::chain::report_stats_operation>)
+        .add_property("set_publishing_manager", decode_static_variant<graphene::chain::operation, graphene::chain::set_publishing_manager_operation>)
+        .add_property("set_publishing_right", decode_static_variant<graphene::chain::operation, graphene::chain::set_publishing_right_operation>)
         .add_property("content_cancellation", decode_static_variant<graphene::chain::operation, graphene::chain::content_cancellation_operation>)
         .add_property("asset_fund_pools", decode_static_variant<graphene::chain::operation, graphene::chain::asset_fund_pools_operation>)
         .add_property("asset_reserve", decode_static_variant<graphene::chain::operation, graphene::chain::asset_reserve_operation>)
@@ -567,6 +579,58 @@ void register_operation()
             .def_readwrite("D1", &graphene::chain::ciphertext_type::D1)
         ;
     }
+
+    bp::class_<graphene::chain::subscribe_operation>("SubscribeToAuthor", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::subscribe_operation>)
+        .def_readwrite("fee", &graphene::chain::subscribe_operation::fee)
+        .def_readwrite("consumer", &graphene::chain::subscribe_operation::from)
+        .def_readwrite("author", &graphene::chain::subscribe_operation::to)
+        .def_readwrite("price", &graphene::chain::subscribe_operation::price)
+    ;
+
+    bp::class_<graphene::chain::subscribe_by_author_operation>("SubscribeByAuthor", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::subscribe_by_author_operation>)
+        .def_readwrite("fee", &graphene::chain::subscribe_by_author_operation::fee)
+        .def_readwrite("consumer", &graphene::chain::subscribe_by_author_operation::from)
+        .def_readwrite("author", &graphene::chain::subscribe_by_author_operation::to)
+    ;
+
+    bp::class_<graphene::chain::automatic_renewal_of_subscription_operation>("AutomaticRenewalOfSubscription", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::automatic_renewal_of_subscription_operation>)
+        .def_readwrite("fee", &graphene::chain::automatic_renewal_of_subscription_operation::fee)
+        .def_readwrite("consumer", &graphene::chain::automatic_renewal_of_subscription_operation::consumer)
+        .def_readwrite("subscription", &graphene::chain::automatic_renewal_of_subscription_operation::subscription)
+        .def_readwrite("automatic_renewal", &graphene::chain::automatic_renewal_of_subscription_operation::automatic_renewal)
+    ;
+
+    bp::class_<graphene::chain::report_stats_operation>("ReportStatistics", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::report_stats_operation>)
+        .def_readwrite("fee", &graphene::chain::report_stats_operation::fee)
+        .def_readwrite("consumer", &graphene::chain::report_stats_operation::consumer)
+        .add_property("statistics",
+            encode_dict<graphene::chain::report_stats_operation, std::map<graphene::chain::account_id_type, uint64_t>, &graphene::chain::report_stats_operation::stats>,
+            decode_dict<graphene::chain::report_stats_operation, std::map<graphene::chain::account_id_type, uint64_t>, &graphene::chain::report_stats_operation::stats>)
+    ;
+
+    bp::class_<graphene::chain::set_publishing_manager_operation>("SetPublishingManager", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::set_publishing_manager_operation>)
+        .def_readwrite("fee", &graphene::chain::set_publishing_manager_operation::fee)
+        .def_readwrite("payer", &graphene::chain::set_publishing_manager_operation::from)
+        .add_property("publishers",
+            encode_list<graphene::chain::set_publishing_manager_operation, std::vector<graphene::chain::account_id_type>, &graphene::chain::set_publishing_manager_operation::to>,
+            decode_list<graphene::chain::set_publishing_manager_operation, std::vector<graphene::chain::account_id_type>, &graphene::chain::set_publishing_manager_operation::to>)
+        .def_readwrite("can_create_publishers", &graphene::chain::set_publishing_manager_operation::can_create_publishers)
+    ;
+
+    bp::class_<graphene::chain::set_publishing_right_operation>("SetPublishingRight", bp::init<>())
+        .def("__repr__", object_repr<graphene::chain::set_publishing_right_operation>)
+        .def_readwrite("fee", &graphene::chain::set_publishing_right_operation::fee)
+        .def_readwrite("payer", &graphene::chain::set_publishing_right_operation::from)
+        .add_property("publishers",
+            encode_list<graphene::chain::set_publishing_right_operation, std::vector<graphene::chain::account_id_type>, &graphene::chain::set_publishing_right_operation::to>,
+            decode_list<graphene::chain::set_publishing_right_operation, std::vector<graphene::chain::account_id_type>, &graphene::chain::set_publishing_right_operation::to>)
+        .def_readwrite("can_publish", &graphene::chain::set_publishing_right_operation::is_publisher)
+    ;
 
     bp::class_<graphene::chain::content_cancellation_operation>("CancelContent", bp::init<>())
         .def("__repr__", object_repr<graphene::chain::content_cancellation_operation>)
