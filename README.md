@@ -16,14 +16,14 @@ For Debian 10/Ubuntu 18.04 LTS or later, execute in console:
     sudo apt-get install build-essential autotools-dev automake autoconf libtool make cmake g++ doxygen git libreadline-dev libcrypto++-dev libgmp-dev libpbc-dev libssl-dev libcurl4-openssl-dev libboost-all-dev zlib1g-dev
     mkdir ~/dev
 
-    # Download and build JSON 3.7.0
-    curl -LO https://github.com/nlohmann/json/archive/v3.7.0.tar.gz
-    tar xf v3.7.0.tar.gz
-    cd json-3.7.0
+    # Download and build JSON 3.7.2
+    curl -LO https://github.com/nlohmann/json/archive/v3.7.2.tar.gz
+    tar xf v3.7.2.tar.gz
+    cd json-3.7.2
     cmake .
     sudo make -j$(nproc) install
     cd ..
-    rm -rf json-3.7.0 v3.7.0.tar.gz
+    rm -rf json-3.7.2 v3.7.2.tar.gz
 
 For Fedora 29 or later, execute in console:
 
