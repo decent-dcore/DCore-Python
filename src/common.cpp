@@ -165,7 +165,6 @@ void register_common_types()
 
     register_hash<fc::ripemd160>("RIPEMD160");
     register_hash<fc::sha256>("SHA256");
-    register_hash<fc::sha224>("SHA224");
 
     bp::class_<fc::uint128>("UInt128", bp::init<>())
         .def(bp::init<uint64_t>())

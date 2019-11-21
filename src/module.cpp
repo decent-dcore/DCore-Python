@@ -161,7 +161,7 @@ struct Wallet : public wa::WalletAPI
     bp::list get_non_fungible_tokens(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_non_fungible_tokens, vector_from_list<ch::non_fungible_token_id_type>(ids)).wait()); }
     bp::list list_non_fungible_token_data(const ch::non_fungible_token_id_type& nft) { return to_list(query(&wa::db_api::list_non_fungible_token_data, nft).wait()); }
     bp::dict get_non_fungible_token_summary(const ch::account_id_type& account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
-    bp::list get_non_fungible_token_balances(const string& account, const bp::list& nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
+    bp::list get_non_fungible_token_balances(const std::string& account, const bp::list& nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
     ch::signed_transaction create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
         bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<ch::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
     ch::signed_transaction update_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, uint32_t max_supply, bool fixed_max_supply, bool broadcast)

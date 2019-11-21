@@ -1,5 +1,4 @@
 #include "module.hpp"
-#include <graphene/chain/protocol/non_fungible_token.hpp>
 #include <graphene/chain/non_fungible_token_object.hpp>
 
 namespace dcore {
