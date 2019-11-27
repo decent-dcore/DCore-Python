@@ -52,9 +52,6 @@ void register_account()
         .def_readwrite("rights_to_publish", &graphene::chain::account_object::rights_to_publish)
         .def_readwrite("statistics", &graphene::chain::account_object::statistics)
         .def_readwrite("top_n_control_flags", &graphene::chain::account_object::top_n_control_flags)
-        .add_property("cashback_vb",
-            decode_optional_type<graphene::chain::account_object, graphene::chain::vesting_balance_id_type, &graphene::chain::account_object::cashback_vb>,
-            encode_optional_type<graphene::chain::account_object, graphene::chain::vesting_balance_id_type, &graphene::chain::account_object::cashback_vb>)
     ;
 
     bp::class_<object_wrapper<graphene::chain::account_balance_object>, std::shared_ptr<graphene::chain::account_balance_object>> balance("AccountBalance", bp::no_init);
