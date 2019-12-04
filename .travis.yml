@@ -43,7 +43,6 @@ addons:
       - sourceline: 'deb [arch=amd64] https://dl.bintray.com/decentfoundation/ubuntu bionic libpbc'
         key_url: 'https://bintray.com/user/downloadSubjectPublicKey?username=decentfoundation'
     packages:
-      - doxygen
       - libboost-all-dev
       - libcrypto++-dev
       - libcurl4-openssl-dev

@@ -18,16 +18,16 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Doxygen;C:\\Strawberry\\perl"
-        },
-        {
           "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_68_0"
+          "value": "C:\\Projects\\boost_1_71_0"
         },
         {
           "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_68_0\\lib64-msvc-14.1"
+          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
+        },
+        {
+          "name": "PYTHON_VERSION",
+          "value": "37"
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
@@ -53,16 +53,16 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Doxygen;C:\\Strawberry\\perl"
-        },
-        {
           "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_68_0"
+          "value": "C:\\Projects\\boost_1_71_0"
         },
         {
           "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_68_0\\lib64-msvc-14.1"
+          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
+        },
+        {
+          "name": "PYTHON_VERSION",
+          "value": "37"
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
@@ -88,16 +88,16 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Doxygen;C:\\Strawberry\\perl"
-        },
-        {
           "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_68_0"
+          "value": "C:\\Projects\\boost_1_71_0"
         },
         {
           "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_68_0\\lib64-msvc-14.1"
+          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
+        },
+        {
+          "name": "PYTHON_VERSION",
+          "value": "37"
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
@@ -123,16 +123,16 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "CMAKE_PREFIX_PATH",
-          "value": "C:\\Doxygen;C:\\Strawberry\\perl"
-        },
-        {
           "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_68_0"
+          "value": "C:\\Projects\\boost_1_71_0"
         },
         {
           "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_68_0\\lib64-msvc-14.1"
+          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
+        },
+        {
+          "name": "PYTHON_VERSION",
+          "value": "37"
         },
         {
           "name": "VCPKG_TARGET_TRIPLET",
