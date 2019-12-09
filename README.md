@@ -49,10 +49,7 @@ For CentOS 8, execute in console:
 
 Then, execute in console:
 
-    $ brew update
-    $ brew install cmake boost-python3 cryptopp openssl@1.1 pbc readline git
-    $ brew tap nlohmann/json
-    $ brew install nlohmann_json --with-cmake
+    $ brew install cmake boost-python3 cryptopp openssl@1.1 pbc nlohmann-json readline git
     $ brew link --force readline
     $ mkdir ~/dev
 
