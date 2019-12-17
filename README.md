@@ -88,7 +88,7 @@ In order to build and install DCore-Python, execute in console:
     cmake --build . --target all -- -j -l 3.0
     cmake --build . --target install
 
-> Note for Ubuntu 18.04 LTS, you have to change value of `-DPYTHON_VERSION=` to `36` during the initial configuration.
+> Note for Ubuntu 18.04 LTS/CentOS 8, you have to change value of `-DPYTHON_VERSION=` to `36` during the initial configuration.
 
 ### Building and installing DCore-Python in Windows
 
