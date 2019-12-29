@@ -114,6 +114,7 @@ struct Wallet : public wa::WalletAPI
     ch::dynamic_global_property_object get_dynamic_global_properties() { return query(&wa::db_api::get_dynamic_global_properties).wait(); }
     bp::object get_block(uint32_t num) { return encode_optional_value(query(&wa::db_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return query(&wa::db_api::head_block_time).wait(); }
+    ch::real_supply get_real_supply() { return query(&wa::db_api::get_real_supply).wait(); }
 
     // account
     uint64_t get_account_count() { return query(&wa::db_api::get_account_count).wait(); }
@@ -307,6 +308,7 @@ BOOST_PYTHON_MODULE(dcore)
         .def("get_dynamic_global_properties", &dcore::Wallet::get_dynamic_global_properties)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
+        .def("get_real_supply", &dcore::Wallet::get_real_supply)
         .def("get_account_count", &dcore::Wallet::get_account_count)
         .def("get_account", &dcore::Wallet::get_account, (bp::arg("name")))
         .def("lookup_accounts", &dcore::Wallet::lookup_accounts, (bp::arg("lowerbound"), bp::arg("limit")))

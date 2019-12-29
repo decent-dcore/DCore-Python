@@ -2,6 +2,7 @@
 #include <graphene/db/object.hpp>
 #include <graphene/chain/protocol/block.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
+#include <graphene/chain/budget_record_object.hpp>
 #include <graphene/utilities/key_conversion.hpp>
 #include <graphene/utilities/keys_generator.hpp>
 #include <decent/encrypt/encryptionutils.hpp>
@@ -36,7 +37,13 @@ void register_object_id(const char* name)
         .def("__hash__", &T::operator uint64_t)
         .def_readonly("object_id", &T::operator graphene::db::object_id_type)
     ;
-};
+}
+
+template<typename T, typename R, fc::safe<R> (T::* func)()>
+R safe_value(T& obj)
+{
+   return ((&obj)->*func)().value;
+}
 
 std::string key_to_str(const graphene::chain::private_key_type& key)
 {
@@ -355,6 +362,15 @@ void register_common_types()
         .def_readwrite("quote", &graphene::chain::price::quote)
         .def("unit_price", graphene::chain::price::unit_price)
         .staticmethod("unit_price")
+    ;
+
+    bp::class_<graphene::chain::real_supply>("RealSupply", bp::no_init)
+        .def("__repr__", object_repr<graphene::chain::real_supply>)
+        .def("total", safe_value<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::total>)
+        .add_property("account_balances", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::account_balances>)
+        .add_property("vesting_balances", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::vesting_balances>)
+        .add_property("escrows", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::escrows>)
+        .add_property("pools", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::pools>)
     ;
 }
 
