@@ -14,6 +14,7 @@ add_library( dcore SHARED
              asset.cpp
              chain.cpp
              common.cpp
+             miner.cpp
              module.cpp
              nft.cpp
              operation.cpp

@@ -61,6 +61,12 @@ bp::dict to_dict(const T &container)
     return d;
 }
 
+template<typename V>
+V to_safe_value(const fc::safe<V>& v)
+{
+   return v.value;
+}
+
 template<typename T, boost::filesystem::path (T::* method)() const>
 std::string decode_path(const T &obj)
 {
@@ -115,6 +121,10 @@ struct Wallet : public wa::WalletAPI
     bp::object get_block(uint32_t num) { return encode_optional_value(query(&wa::db_api::get_block, num).wait()); }
     fc::time_point_sec head_block_time() { return query(&wa::db_api::head_block_time).wait(); }
     ch::real_supply get_real_supply() { return query(&wa::db_api::get_real_supply).wait(); }
+    uint64_t get_new_asset_per_block() { return to_safe_value(query(&wa::db_api::get_new_asset_per_block).wait()); }
+    uint64_t get_new_asset_by_block(uint32_t block_num) { return to_safe_value(query(&wa::db_api::get_asset_per_block_by_block_num, block_num).wait()); }
+    uint64_t get_miner_pay(fc::time_point_sec block_time) { return to_safe_value(query(&wa::db_api::get_miner_pay_from_fees_by_block_time, block_time).wait()); }
+    bp::list get_actual_votes() { return to_list(query(&wa::db_api::get_actual_votes).wait()); }
 
     // account
     uint64_t get_account_count() { return query(&wa::db_api::get_account_count).wait(); }
@@ -158,11 +168,21 @@ struct Wallet : public wa::WalletAPI
     ch::signed_transaction publish_asset_feed(const std::string& account, const std::string& symbol, const ch::price_feed& feed, bool broadcast)
        { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
 
+    // miner
+    uint64_t get_miner_count() { return query(&wa::db_api::get_miner_count).wait(); }
+    bp::dict list_miners(const std::string& lowerbound, uint32_t limit) { return to_dict(query(&wa::db_api::lookup_miner_accounts, lowerbound, limit).wait()); }
+    bp::list get_miners(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_miners, vector_from_list<ch::miner_id_type>(ids)).wait()); }
+    bp::object get_miner_by_account(ch::account_id_type id) { return encode_optional_value(query(&wa::db_api::get_miner_by_account, id).wait()); }
+    ch::signed_transaction create_miner(const std::string &account, const std::string &url, bool broadcast)
+        { return exec(&wa::wallet_api::create_miner, account, url, broadcast).wait(); }
+    ch::signed_transaction update_miner(const std::string &miner, const std::string &url, const ch::public_key_type &signing_key, bool broadcast)
+        { return exec(&wa::wallet_api::update_miner, miner, url, static_cast<std::string>(signing_key), broadcast).wait(); }
+
     // non fungible token
     bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
     bp::list get_non_fungible_tokens(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_non_fungible_tokens, vector_from_list<ch::non_fungible_token_id_type>(ids)).wait()); }
     bp::list list_non_fungible_token_data(const ch::non_fungible_token_id_type& nft) { return to_list(query(&wa::db_api::list_non_fungible_token_data, nft).wait()); }
-    bp::dict get_non_fungible_token_summary(const ch::account_id_type& account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
+    bp::dict get_non_fungible_token_summary(ch::account_id_type account) { return to_dict(query(&wa::db_api::get_non_fungible_token_summary, account).wait()); }
     bp::list get_non_fungible_token_balances(const std::string& account, const bp::list& nfts) { return to_list(exec(&wa::wallet_api::get_non_fungible_token_balances, account, set_from_list<std::string>(nfts)).wait()); }
     ch::signed_transaction create_non_fungible_token(const std::string& issuer, const std::string& symbol, const std::string& description, const bp::list& definitions, uint32_t max_supply, bool fixed_max_supply, bool transferable,
         bool broadcast) { return exec(&wa::wallet_api::create_non_fungible_token, issuer, symbol, description, vector_from_list<ch::non_fungible_token_data_type>(definitions), max_supply, fixed_max_supply, transferable, broadcast).wait(); }
@@ -201,6 +221,7 @@ BOOST_PYTHON_MODULE(dcore)
     dcore::register_account();
     dcore::register_asset();
     dcore::register_chain();
+    dcore::register_miner();
     dcore::register_nft();
     dcore::register_operation();
 
@@ -309,6 +330,10 @@ BOOST_PYTHON_MODULE(dcore)
         .def("get_block", &dcore::Wallet::get_block, (bp::arg("num")))
         .def("head_block_time", &dcore::Wallet::head_block_time)
         .def("get_real_supply", &dcore::Wallet::get_real_supply)
+        .def("get_new_asset_per_block", &dcore::Wallet::get_new_asset_per_block)
+        .def("get_new_asset_by_block", &dcore::Wallet::get_new_asset_by_block, (bp::arg("block_num")))
+        .def("get_miner_pay", &dcore::Wallet::get_miner_pay, (bp::arg("block_time")))
+        .def("get_actual_votes", &dcore::Wallet::get_actual_votes)
         .def("get_account_count", &dcore::Wallet::get_account_count)
         .def("get_account", &dcore::Wallet::get_account, (bp::arg("name")))
         .def("lookup_accounts", &dcore::Wallet::lookup_accounts, (bp::arg("lowerbound"), bp::arg("limit")))
@@ -348,6 +373,12 @@ BOOST_PYTHON_MODULE(dcore)
             (bp::arg("uia_amount"), bp::arg("uia_symbol"), bp::arg("dct_amount"), bp::arg("dct_symbol"), bp::arg("broadcast") = false))
         .def("publish_asset_feed", &dcore::Wallet::publish_asset_feed,
             (bp::arg("account"), bp::arg("symbol"), bp::arg("feed"), bp::arg("broadcast") = false))
+        .def("get_miner_count", &dcore::Wallet::get_miner_count)
+        .def("list_miners", &dcore::Wallet::list_miners, (bp::arg("lowerbound"), bp::arg("limit")))
+        .def("get_miners", &dcore::Wallet::get_miners, (bp::arg("ids")))
+        .def("get_miner_by_account", &dcore::Wallet::get_miner_by_account, (bp::arg("id")))
+        .def("create_miner", &dcore::Wallet::create_miner, (bp::arg("account"), bp::arg("url"), bp::arg("broadcast") = false))
+        .def("update_miner", &dcore::Wallet::update_miner, (bp::arg("miner"), bp::arg("url"), bp::arg("signing_key"), bp::arg("broadcast") = false))
         .def("list_non_fungible_tokens", &dcore::Wallet::list_non_fungible_tokens, (bp::arg("lowerbound"), bp::arg("limit")))
         .def("get_non_fungible_tokens", &dcore::Wallet::get_non_fungible_tokens, (bp::arg("ids")))
         .def("list_non_fungible_token_data", &dcore::Wallet::list_non_fungible_token_data, (bp::arg("nft")))

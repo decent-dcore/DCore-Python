@@ -3,6 +3,7 @@
 #include <graphene/chain/protocol/block.hpp>
 #include <graphene/chain/protocol/fee_schedule.hpp>
 #include <graphene/chain/budget_record_object.hpp>
+#include <graphene/chain/database.hpp>
 #include <graphene/utilities/key_conversion.hpp>
 #include <graphene/utilities/keys_generator.hpp>
 #include <decent/encrypt/encryptionutils.hpp>
@@ -371,6 +372,12 @@ void register_common_types()
         .add_property("vesting_balances", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::vesting_balances>)
         .add_property("escrows", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::escrows>)
         .add_property("pools", decode_safe_type<graphene::chain::real_supply, int64_t, &graphene::chain::real_supply::pools>)
+    ;
+
+    bp::class_<graphene::chain::database::votes_gained>("VotesGained", bp::no_init)
+        .def("__repr__", object_repr<graphene::chain::database::votes_gained>)
+        .def_readonly("account", &graphene::chain::database::votes_gained::account_name)
+        .def_readonly("votes", &graphene::chain::database::votes_gained::votes)
     ;
 }
 

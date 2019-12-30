@@ -142,6 +142,7 @@ void register_common_types();
 void register_account();
 void register_asset();
 void register_chain();
+void register_miner();
 void register_nft();
 void register_operation();
 
