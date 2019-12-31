@@ -124,6 +124,12 @@ void encode_optional_type(T& obj, const V &v)
     (obj.*instance) = v;
 }
 
+template<typename V, typename T>
+bp::object decode_static_variant(const V& v)
+{
+    return v.which() == V::template tag<T>::value ? bp::object(v.template get<T>()) : bp::object();
+}
+
 template<typename T>
 class object_wrapper : public T, public bp::wrapper<T>
 {

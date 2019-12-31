@@ -124,7 +124,6 @@ struct Wallet : public wa::WalletAPI
     uint64_t get_new_asset_per_block() { return to_safe_value(query(&wa::db_api::get_new_asset_per_block).wait()); }
     uint64_t get_new_asset_by_block(uint32_t block_num) { return to_safe_value(query(&wa::db_api::get_asset_per_block_by_block_num, block_num).wait()); }
     uint64_t get_miner_pay(fc::time_point_sec block_time) { return to_safe_value(query(&wa::db_api::get_miner_pay_from_fees_by_block_time, block_time).wait()); }
-    bp::list get_actual_votes() { return to_list(query(&wa::db_api::get_actual_votes).wait()); }
 
     // account
     uint64_t get_account_count() { return query(&wa::db_api::get_account_count).wait(); }
@@ -139,44 +138,59 @@ struct Wallet : public wa::WalletAPI
         const std::string &registrar, bool broadcast) { return exec(&wa::wallet_api::register_account_with_keys, name, owner, active, memo, registrar, broadcast).wait(); }
     ch::signed_transaction register_multisig_account(const std::string &name, const ch::authority &owner, const ch::authority &active, const ch::public_key_type &memo,
         const std::string &registrar, bool broadcast) { return exec(&wa::wallet_api::register_multisig_account, name, owner, active, memo, registrar, broadcast).wait(); }
-    ch::signed_transaction update_account(const std::string &name, const ch::public_key_type &owner, const ch::public_key_type &active, const ch::public_key_type &memo,
-        bool broadcast) { return exec(&wa::wallet_api::update_account_keys, name, static_cast<std::string>(owner), static_cast<std::string>(active), static_cast<std::string>(memo), broadcast).wait(); }
-    ch::signed_transaction update_multisig_account(const std::string &name, const ch::authority &owner, const ch::authority &active, const ch::public_key_type &memo,
-        bool broadcast) { return exec(&wa::wallet_api::update_account_keys_to_multisig, name, owner, active, memo, broadcast).wait(); }
+    ch::signed_transaction update_account(const std::string &name, const ch::public_key_type &owner, const ch::public_key_type &active, const ch::public_key_type &memo, bool broadcast)
+        { return exec(&wa::wallet_api::update_account_keys, name, static_cast<std::string>(owner), static_cast<std::string>(active), static_cast<std::string>(memo), broadcast).wait(); }
+    ch::signed_transaction update_multisig_account(const std::string &name, const ch::authority &owner, const ch::authority &active, const ch::public_key_type &memo, bool broadcast)
+        { return exec(&wa::wallet_api::update_account_keys_to_multisig, name, owner, active, memo, broadcast).wait(); }
     ch::signed_transaction transfer(const std::string &from, const std::string &to, double amount, const std::string &symbol, const std::string &memo, bool broadcast)
         { return exec(&wa::wallet_api::transfer, from, to, fc::to_string(amount), symbol, memo, broadcast).wait(); }
 
     // asset
     bp::list list_assets(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_assets, lowerbound, limit).wait()); }
     bp::list get_assets(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_assets, vector_from_list<ch::asset_id_type>(ids)).wait()); }
-    ch::signed_transaction create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds,
-       bool broadcast) { return exec(&wa::wallet_api::create_monitored_asset, issuer, symbol, precision, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
+    ch::signed_transaction create_monitored_asset(const std::string &issuer, const std::string &symbol, uint8_t precision, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
+        { return exec(&wa::wallet_api::create_monitored_asset, issuer, symbol, precision, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
     ch::signed_transaction update_monitored_asset(const std::string &symbol, const std::string &description, uint32_t feed_lifetime_sec, uint8_t minimum_feeds, bool broadcast)
-       { return exec(&wa::wallet_api::update_monitored_asset, symbol, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
+        { return exec(&wa::wallet_api::update_monitored_asset, symbol, description, feed_lifetime_sec, minimum_feeds, broadcast).wait(); }
     ch::signed_transaction create_user_issued_asset(const std::string& issuer, const std::string& symbol, uint8_t precision, const std::string& description, uint64_t max_supply, const ch::price& core_exchange_rate,
-       bool exchangeable, bool fixed_max_supply, bool broadcast) { return exec(&wa::wallet_api::create_user_issued_asset, issuer, symbol, precision, description, max_supply, core_exchange_rate, exchangeable, fixed_max_supply, broadcast).wait(); }
+        bool exchangeable, bool fixed_max_supply, bool broadcast) { return exec(&wa::wallet_api::create_user_issued_asset, issuer, symbol, precision, description, max_supply, core_exchange_rate, exchangeable, fixed_max_supply, broadcast).wait(); }
     ch::signed_transaction update_user_issued_asset(const std::string& symbol, const std::string& issuer, const std::string& description, uint64_t max_supply, const ch::price& core_exchange_rate,
-       bool exchangeable, bool broadcast) { return exec(&wa::wallet_api::update_user_issued_asset, symbol, issuer, description, max_supply, core_exchange_rate, exchangeable, broadcast).wait(); }
+        bool exchangeable, bool broadcast) { return exec(&wa::wallet_api::update_user_issued_asset, symbol, issuer, description, max_supply, core_exchange_rate, exchangeable, broadcast).wait(); }
     ch::signed_transaction issue_asset(const std::string& account, double amount, const std::string& symbol, const std::string& memo, bool broadcast)
-       { return exec(&wa::wallet_api::issue_asset, account, fc::to_string(amount), symbol, memo, broadcast).wait(); }
+        { return exec(&wa::wallet_api::issue_asset, account, fc::to_string(amount), symbol, memo, broadcast).wait(); }
     ch::signed_transaction fund_asset_pools(const std::string& account, double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
-       { return exec(&wa::wallet_api::fund_asset_pools, account, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
+        { return exec(&wa::wallet_api::fund_asset_pools, account, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
     ch::signed_transaction reserve_asset(const std::string& account, double amount, const std::string& symbol, bool broadcast)
-       { return exec(&wa::wallet_api::reserve_asset, account, fc::to_string(amount), symbol, broadcast).wait(); }
+        { return exec(&wa::wallet_api::reserve_asset, account, fc::to_string(amount), symbol, broadcast).wait(); }
     ch::signed_transaction claim_fees(double uia_amount, const std::string& uia_symbol, double dct_amount, const std::string& dct_symbol, bool broadcast)
-       { return exec(&wa::wallet_api::claim_fees, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
+        { return exec(&wa::wallet_api::claim_fees, fc::to_string(uia_amount), uia_symbol, fc::to_string(dct_amount), dct_symbol, broadcast).wait(); }
     ch::signed_transaction publish_asset_feed(const std::string& account, const std::string& symbol, const ch::price_feed& feed, bool broadcast)
-       { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
+        { return exec(&wa::wallet_api::publish_asset_feed, account, symbol, feed, broadcast).wait(); }
 
     // miner
     uint64_t get_miner_count() { return query(&wa::db_api::get_miner_count).wait(); }
     bp::dict list_miners(const std::string& lowerbound, uint32_t limit) { return to_dict(query(&wa::db_api::lookup_miner_accounts, lowerbound, limit).wait()); }
     bp::list get_miners(const bp::list& ids) { return to_optional_list(query(&wa::db_api::get_miners, vector_from_list<ch::miner_id_type>(ids)).wait()); }
     bp::object get_miner_by_account(ch::account_id_type id) { return encode_optional_value(query(&wa::db_api::get_miner_by_account, id).wait()); }
+    bp::list get_vesting_balances(ch::account_id_type id) { return to_list(query(&wa::db_api::get_vesting_balances, id).wait()); }
     ch::signed_transaction create_miner(const std::string &account, const std::string &url, bool broadcast)
         { return exec(&wa::wallet_api::create_miner, account, url, broadcast).wait(); }
     ch::signed_transaction update_miner(const std::string &miner, const std::string &url, const ch::public_key_type &signing_key, bool broadcast)
         { return exec(&wa::wallet_api::update_miner, miner, url, static_cast<std::string>(signing_key), broadcast).wait(); }
+    ch::signed_transaction withdraw_vesting(const std::string& miner, double amount, const std::string& symbol, bool broadcast)
+        { return exec(&wa::wallet_api::withdraw_vesting, miner, fc::to_string(amount), symbol, broadcast).wait(); }
+
+    // voting
+    bp::list list_votes(const bp::list& ids) { return to_optional_list(query(&wa::db_api::lookup_vote_ids, vector_from_list<ch::vote_id_type>(ids)).wait()); }
+    bp::list get_actual_votes() { return to_list(query(&wa::db_api::get_actual_votes).wait()); }
+    bp::list search_miner_voting(const std::string& account, const std::string& term, bool only_my_votes, const std::string& order, const std::string& id, uint32_t limit)
+        { return to_list(query(&wa::db_api::search_miner_voting, account, term, only_my_votes, order, id, limit).wait()); }
+    ch::signed_transaction vote_for_miner(const std::string& account, const std::string& miner, bool approve, bool broadcast)
+        { return exec(&wa::wallet_api::vote_for_miner, account, miner, approve, broadcast).wait(); }
+    ch::signed_transaction set_voting_proxy(const std::string& account, const bp::object& voting_account, bool broadcast)
+        { return exec(&wa::wallet_api::set_voting_proxy, account, decode_optional_value<std::string>(voting_account), broadcast).wait(); }
+    ch::signed_transaction set_desired_miner_count(const std::string& account, uint16_t number_of_miners, bool broadcast)
+        { return exec(&wa::wallet_api::set_desired_miner_count, account, number_of_miners, broadcast).wait(); }
 
     // non fungible token
     bp::list list_non_fungible_tokens(const std::string& lowerbound, uint32_t limit) { return to_list(query(&wa::db_api::list_non_fungible_tokens, lowerbound, limit).wait()); }
@@ -333,7 +347,6 @@ BOOST_PYTHON_MODULE(dcore)
         .def("get_new_asset_per_block", &dcore::Wallet::get_new_asset_per_block)
         .def("get_new_asset_by_block", &dcore::Wallet::get_new_asset_by_block, (bp::arg("block_num")))
         .def("get_miner_pay", &dcore::Wallet::get_miner_pay, (bp::arg("block_time")))
-        .def("get_actual_votes", &dcore::Wallet::get_actual_votes)
         .def("get_account_count", &dcore::Wallet::get_account_count)
         .def("get_account", &dcore::Wallet::get_account, (bp::arg("name")))
         .def("lookup_accounts", &dcore::Wallet::lookup_accounts, (bp::arg("lowerbound"), bp::arg("limit")))
@@ -377,8 +390,16 @@ BOOST_PYTHON_MODULE(dcore)
         .def("list_miners", &dcore::Wallet::list_miners, (bp::arg("lowerbound"), bp::arg("limit")))
         .def("get_miners", &dcore::Wallet::get_miners, (bp::arg("ids")))
         .def("get_miner_by_account", &dcore::Wallet::get_miner_by_account, (bp::arg("id")))
+        .def("get_vesting_balances", &dcore::Wallet::get_vesting_balances, (bp::arg("id")))
         .def("create_miner", &dcore::Wallet::create_miner, (bp::arg("account"), bp::arg("url"), bp::arg("broadcast") = false))
         .def("update_miner", &dcore::Wallet::update_miner, (bp::arg("miner"), bp::arg("url"), bp::arg("signing_key"), bp::arg("broadcast") = false))
+        .def("withdraw_vesting", &dcore::Wallet::withdraw_vesting, (bp::arg("miner"), bp::arg("amount"), bp::arg("symbol"), bp::arg("broadcast") = false))
+        .def("list_votes", &dcore::Wallet::list_votes, (bp::arg("ids")))
+        .def("get_actual_votes", &dcore::Wallet::get_actual_votes)
+        .def("search_miner_voting", &dcore::Wallet::search_miner_voting, (bp::arg("account"), bp::arg("term"), bp::arg("only_my_votes"), bp::arg("order"), bp::arg("id"), bp::arg("limit")))
+        .def("vote_for_miner", &dcore::Wallet::vote_for_miner, (bp::arg("account"), bp::arg("miner"), bp::arg("approve"), bp::arg("broadcast") = false))
+        .def("set_voting_proxy", &dcore::Wallet::set_voting_proxy, (bp::arg("account"), bp::arg("voting_account"), bp::arg("broadcast") = false))
+        .def("set_desired_miner_count", &dcore::Wallet::set_desired_miner_count, (bp::arg("account"), bp::arg("number_of_miners"), bp::arg("broadcast") = false))
         .def("list_non_fungible_tokens", &dcore::Wallet::list_non_fungible_tokens, (bp::arg("lowerbound"), bp::arg("limit")))
         .def("get_non_fungible_tokens", &dcore::Wallet::get_non_fungible_tokens, (bp::arg("ids")))
         .def("list_non_fungible_token_data", &dcore::Wallet::list_non_fungible_token_data, (bp::arg("nft")))

@@ -4,12 +4,6 @@
 
 namespace dcore {
 
-template<typename V, typename T>
-bp::object decode_static_variant(const V& v)
-{
-    return v.which() == V::template tag<T>::value ? bp::object(v.template get<T>()) : bp::object();
-}
-
 bp::list encode_proposed_operations(const graphene::chain::proposal_create_operation &op)
 {
     bp::list l;
