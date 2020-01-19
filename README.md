@@ -59,7 +59,6 @@ Then, execute in console:
 * Install CMake tools (https://cmake.org/download)
 * Install Python 3.7 (https://www.python.org/downloads/windows)
 * Install Visual Studio 2019 Community (https://visualstudio.microsoft.com/downloads)
-* Install Boost 1.71 MSVC 14.2 (https://sourceforge.net/projects/boost/files/boost-binaries) (choose *C:\Projects\boost_1_71_0* as installation prefix)
 
 Then, start _Visual Studio 2019 x64 Native Tools Command Prompt_ and execute:
 
@@ -68,7 +67,7 @@ Then, start _Visual Studio 2019 x64 Native Tools Command Prompt_ and execute:
     git clone https://github.com/Microsoft/vcpkg.git
     cd vcpkg
     bootstrap-vcpkg.bat
-    vcpkg --triplet x64-windows-static install cryptopp curl openssl pbc nlohmann-json
+    vcpkg --triplet x64-windows-static install boost cryptopp curl openssl pbc nlohmann-json
 
 ### Obtaining the sources
 
@@ -100,5 +99,4 @@ In order to build and install DCore-Python follow the steps:
 You can use CMake generator to create a Visual Studio 2019 project files and perform _Build > Build All_ action from there, just start the _Visual Studio 2019 x64 Native Tools Command Prompt_ and execute:
 
     cd \Projects\DCore-Python
-    set BOOST=C:\Projects\boost_1_71_0
-    cmake -DCMAKE_TOOLCHAIN_FILE=C:\Projects\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=%BOOST% -DBOOST_LIBRARYDIR=%BOOST%\lib64-msvc-14.2 -DPYTHON_VERSION=37 -G "Visual Studio 16 2019" -A x64 .
+    cmake -DCMAKE_TOOLCHAIN_FILE=C:\Projects\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DPYTHON_VERSION=37 -G "Visual Studio 16 2019" -A x64 .

@@ -18,14 +18,6 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_71_0"
-        },
-        {
-          "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
-        },
-        {
           "name": "PYTHON_VERSION",
           "value": "37"
         },
@@ -51,14 +43,6 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-        },
-        {
-          "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_71_0"
-        },
-        {
-          "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
         },
         {
           "name": "PYTHON_VERSION",
@@ -88,14 +72,6 @@
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
         },
         {
-          "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_71_0"
-        },
-        {
-          "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
-        },
-        {
           "name": "PYTHON_VERSION",
           "value": "37"
         },
@@ -121,14 +97,6 @@
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
           "value": "C:\\Projects\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-        },
-        {
-          "name": "BOOST_ROOT",
-          "value": "C:\\Projects\\boost_1_71_0"
-        },
-        {
-          "name": "BOOST_LIBRARYDIR",
-          "value": "C:\\Projects\\boost_1_71_0\\lib64-msvc-14.2"
         },
         {
           "name": "PYTHON_VERSION",
