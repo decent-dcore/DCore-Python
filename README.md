@@ -93,7 +93,7 @@ In order to build and install DCore-Python, execute in console:
 
 In order to build and install DCore-Python follow the steps:
 * start Visual Studio 2019 and open a local folder `C:\Projects\DCore-Python`
-* navigate to _Project > CMake Settings_ and adjust installation prefix and paths to Boost and vcpkg (if needed)
+* navigate to _Project > CMake Settings_ and adjust installation prefix and paths to vcpkg (if needed)
 * build and install artifacts using _Build > Install DCore-Python_
 
 You can use CMake generator to create a Visual Studio 2019 project files and perform _Build > Build All_ action from there, just start the _Visual Studio 2019 x64 Native Tools Command Prompt_ and execute:
