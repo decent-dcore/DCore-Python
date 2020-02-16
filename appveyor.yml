@@ -20,7 +20,7 @@ install:
 
     bootstrap-vcpkg.bat
 
-    vcpkg --triplet x64-windows-static install cryptopp curl openssl pbc nlohmann-json
+    vcpkg --triplet x64-windows-static install --recurse cryptopp curl openssl pbc nlohmann-json
 
     vcpkg upgrade --no-dry-run
 
