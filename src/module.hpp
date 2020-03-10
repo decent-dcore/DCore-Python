@@ -56,10 +56,10 @@ bp::dict encode_dict(const T &obj)
 template<typename T, typename Container, Container T::* container>
 void decode_dict(T& obj, const bp::dict &d)
 {
-    bp::list l = d.keys();
+    const bp::list &l = d.keys();
     auto len = bp::len(l);
     while(len--) {
-        bp::object k = l[len];
+        const bp::object &k = l[len];
         bp::extract<typename Container::mapped_type> v(d.get(k));
         (obj.*container)[bp::extract<typename Container::key_type>(k)] = v();
     }
